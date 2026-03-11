@@ -1,10 +1,33 @@
 "use client";
+import MapboxDraw from "@mapbox/mapbox-gl-draw";
 
-import MapLibreGL, { type PopupOptions, type MarkerOptions } from "maplibre-gl";
+import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
+import MapLibreGL, { type MarkerOptions, type PopupOptions } from "maplibre-gl";
+import {
+  CircleMode,
+  DirectModeOverride,
+  RectangleMode,
+  SimpleSelectModeOverride,
+} from "@/lib/map-draw";
 import "maplibre-gl/dist/maplibre-gl.css";
+import {
+  Circle,
+  Loader2,
+  Locate,
+  MapPin,
+  Maximize,
+  Minus,
+  Pentagon,
+  Plus,
+  Square,
+  Trash2,
+  Waypoints,
+  X,
+} from "lucide-react";
 import {
   createContext,
   forwardRef,
+  type ReactNode,
   useCallback,
   useContext,
   useEffect,
@@ -13,10 +36,8 @@ import {
   useMemo,
   useRef,
   useState,
-  type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
-import { X, Minus, Plus, Locate, Maximize, Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -45,7 +66,7 @@ function getSystemTheme(): Theme {
 
 function useResolvedTheme(themeProp?: "light" | "dark"): Theme {
   const [detectedTheme, setDetectedTheme] = useState<Theme>(
-    () => getDocumentTheme() ?? getSystemTheme()
+    () => getDocumentTheme() ?? getSystemTheme(),
   );
 
   useEffect(() => {
@@ -164,7 +185,7 @@ function getViewport(map: MapLibreGL.Map): MapViewport {
   };
 }
 
-const Map = forwardRef<MapRef, MapProps>(function Map(
+const MapLibreMap = forwardRef<MapRef, MapProps>(function MapLibreMap(
   {
     children,
     className,
@@ -175,7 +196,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     onViewportChange,
     ...props
   },
-  ref
+  ref,
 ) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [mapInstance, setMapInstance] = useState<MapLibreGL.Map | null>(null);
@@ -185,6 +206,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
   const styleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const internalUpdateRef = useRef(false);
   const resolvedTheme = useResolvedTheme(themeProp);
+  const initialPropsRef = useRef(props);
 
   const isControlled = viewport !== undefined && onViewportChange !== undefined;
 
@@ -196,7 +218,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       dark: styles?.dark ?? defaultStyles.dark,
       light: styles?.light ?? defaultStyles.light,
     }),
-    [styles]
+    [styles],
   );
 
   // Expose the map instance to the parent component
@@ -224,7 +246,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       attributionControl: {
         compact: true,
       },
-      ...props,
+      ...initialPropsRef.current,
       ...viewport,
     });
 
@@ -264,7 +286,14 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       setMapInstance(null);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [
+    clearStyleTimeout,
+    mapStyles.dark,
+    mapStyles.light,
+    projection,
+    resolvedTheme,
+    viewport,
+  ]);
 
   // Sync controlled viewport to map
   useEffect(() => {
@@ -315,7 +344,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       map: mapInstance,
       isLoaded: isLoaded && isStyleLoaded,
     }),
-    [mapInstance, isLoaded, isStyleLoaded]
+    [mapInstance, isLoaded, isStyleLoaded],
   );
 
   return (
@@ -382,6 +411,7 @@ function MapMarker({
   ...markerOptions
 }: MapMarkerProps) {
   const { map } = useMap();
+  const initialMarkerOptionsRef = useRef(markerOptions);
 
   const callbacksRef = useRef({
     onClick,
@@ -402,7 +432,7 @@ function MapMarker({
 
   const marker = useMemo(() => {
     const markerInstance = new MapLibreGL.Marker({
-      ...markerOptions,
+      ...initialMarkerOptionsRef.current,
       element: document.createElement("div"),
       draggable,
     }).setLngLat([longitude, latitude]);
@@ -439,9 +469,7 @@ function MapMarker({
     markerInstance.on("dragend", handleDragEnd);
 
     return markerInstance;
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [draggable, longitude, latitude]);
 
   useEffect(() => {
     if (!map) return;
@@ -451,9 +479,7 @@ function MapMarker({
     return () => {
       marker.remove();
     };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map]);
+  }, [map, marker]);
 
   if (
     marker.getLngLat().lng !== longitude ||
@@ -505,7 +531,7 @@ function MarkerContent({ children, className }: MarkerContentProps) {
     <div className={cn("relative cursor-pointer", className)}>
       {children || <DefaultMarkerIcon />}
     </div>,
-    marker.getElement()
+    marker.getElement(),
   );
 }
 
@@ -531,21 +557,21 @@ function MarkerPopup({
   ...popupOptions
 }: MarkerPopupProps) {
   const { marker, map } = useMarkerContext();
+  const initialPopupOptionsRef = useRef(popupOptions);
   const container = useMemo(() => document.createElement("div"), []);
   const prevPopupOptions = useRef(popupOptions);
 
   const popup = useMemo(() => {
     const popupInstance = new MapLibreGL.Popup({
       offset: 16,
-      ...popupOptions,
+      ...initialPopupOptionsRef.current,
       closeButton: false,
     })
       .setMaxWidth("none")
       .setDOMContent(container);
 
     return popupInstance;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [container]);
 
   useEffect(() => {
     if (!map) return;
@@ -556,8 +582,7 @@ function MarkerPopup({
     return () => {
       marker.setPopup(null);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map]);
+  }, [map, marker, container, popup]);
 
   if (popup.isOpen()) {
     const prev = prevPopupOptions.current;
@@ -578,7 +603,7 @@ function MarkerPopup({
     <div
       className={cn(
         "relative rounded-md border bg-popover p-3 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95",
-        className
+        className,
       )}
     >
       {closeButton && (
@@ -594,7 +619,7 @@ function MarkerPopup({
       )}
       {children}
     </div>,
-    container
+    container,
   );
 }
 
@@ -611,19 +636,19 @@ function MarkerTooltip({
   ...popupOptions
 }: MarkerTooltipProps) {
   const { marker, map } = useMarkerContext();
+  const initialPopupOptionsRef = useRef(popupOptions);
   const container = useMemo(() => document.createElement("div"), []);
   const prevTooltipOptions = useRef(popupOptions);
 
   const tooltip = useMemo(() => {
     const tooltipInstance = new MapLibreGL.Popup({
       offset: 16,
-      ...popupOptions,
+      ...initialPopupOptionsRef.current,
       closeOnClick: true,
       closeButton: false,
     }).setMaxWidth("none");
 
     return tooltipInstance;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -645,7 +670,15 @@ function MarkerTooltip({
       tooltip.remove();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map]);
+  }, [
+    map,
+    container,
+    marker.getElement,
+    marker.getLngLat,
+    tooltip.remove,
+    tooltip.setDOMContent,
+    tooltip.setLngLat,
+  ]);
 
   if (tooltip.isOpen()) {
     const prev = prevTooltipOptions.current;
@@ -664,12 +697,12 @@ function MarkerTooltip({
     <div
       className={cn(
         "rounded-md bg-foreground px-2 py-1 text-xs text-background shadow-md animate-in fade-in-0 zoom-in-95",
-        className
+        className,
       )}
     >
       {children}
     </div>,
-    container
+    container,
   );
 }
 
@@ -698,7 +731,7 @@ function MarkerLabel({
         "absolute left-1/2 -translate-x-1/2 whitespace-nowrap",
         "text-[10px] font-medium text-foreground",
         positionClasses[position],
-        className
+        className,
       )}
     >
       {children}
@@ -717,10 +750,14 @@ type MapControlsProps = {
   showLocate?: boolean;
   /** Show fullscreen toggle button (default: false) */
   showFullscreen?: boolean;
+  /** Show draw button to draw a circle (default: false) */
+  showDraw?: boolean;
   /** Additional CSS classes for the controls container */
   className?: string;
   /** Callback with user coordinates when located */
   onLocate?: (coords: { longitude: number; latitude: number }) => void;
+  /** Callback when draw is created */
+  onDraw?: (e: MapboxDraw.DrawEvent) => void;
 };
 
 const positionClasses = {
@@ -729,6 +766,55 @@ const positionClasses = {
   "bottom-left": "bottom-2 left-2",
   "bottom-right": "bottom-10 right-2",
 };
+
+const DRAW_THEME = {
+  inactive: "#64748b",
+  active: "#3b82f6",
+  static: "#71717a",
+  surface: "#ffffff",
+} as const;
+
+const DRAW_POINT_ICON_IDS = {
+  inactive: "draw-point-pin-inactive",
+  active: "draw-point-pin-active",
+  static: "draw-point-pin-static",
+} as const;
+
+function createPinIconDataUrl(fill: string, stroke: string) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"><path d="M12 22s7-5.58 7-12a7 7 0 1 0-14 0c0 6.42 7 12 7 12Z" fill="${fill}" stroke="${stroke}" stroke-width="1.75" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.6" fill="${stroke}"/></svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+function registerDrawPointIcons(map: MapLibreGL.Map) {
+  const definitions = [
+    {
+      id: DRAW_POINT_ICON_IDS.inactive,
+      fill: DRAW_THEME.inactive,
+      stroke: DRAW_THEME.surface,
+    },
+    {
+      id: DRAW_POINT_ICON_IDS.active,
+      fill: DRAW_THEME.active,
+      stroke: DRAW_THEME.surface,
+    },
+    {
+      id: DRAW_POINT_ICON_IDS.static,
+      fill: DRAW_THEME.static,
+      stroke: DRAW_THEME.surface,
+    },
+  ];
+
+  definitions.forEach(({ id, fill, stroke }) => {
+    if (map.hasImage(id)) return;
+    const image = new Image(36, 36);
+    image.onload = () => {
+      if (!map.hasImage(id)) {
+        map.addImage(id, image, { pixelRatio: 2 });
+      }
+    };
+    image.src = createPinIconDataUrl(fill, stroke);
+  });
+}
 
 function ControlGroup({ children }: { children: React.ReactNode }) {
   return (
@@ -756,7 +842,7 @@ function ControlButton({
       type="button"
       className={cn(
         "flex items-center justify-center size-8 hover:bg-accent dark:hover:bg-accent/40 transition-colors",
-        disabled && "opacity-50 pointer-events-none cursor-not-allowed"
+        disabled && "opacity-50 pointer-events-none cursor-not-allowed",
       )}
       disabled={disabled}
     >
@@ -771,11 +857,292 @@ function MapControls({
   showCompass = false,
   showLocate = false,
   showFullscreen = false,
+  showDraw = false,
+  onDraw = () => { },
   className,
   onLocate,
 }: MapControlsProps) {
-  const { map } = useMap();
+  const { map, isLoaded } = useMap();
   const [waitingForLocation, setWaitingForLocation] = useState(false);
+  const draw = useMemo(() => {
+    Object.assign(MapboxDraw.constants.classes, {
+      CANVAS: "maplibregl-canvas",
+      CONTROL_BASE: "maplibregl-ctrl",
+      CONTROL_PREFIX: "maplibregl-ctrl-",
+      CONTROL_GROUP: "maplibregl-ctrl-group",
+      ATTRIBUTION: "maplibregl-ctrl-attrib",
+    });
+    const drawTheme = DRAW_THEME;
+    const styles = [
+      {
+        id: "gl-draw-polygon-fill-inactive",
+        type: "fill",
+        filter: [
+          "all",
+          ["==", "active", "false"],
+          ["==", "$type", "Polygon"],
+          ["!=", "mode", "static"],
+        ],
+        paint: {
+          "fill-color": drawTheme.inactive,
+          "fill-outline-color": drawTheme.inactive,
+          "fill-opacity": 0.12,
+        },
+      },
+      {
+        id: "gl-draw-polygon-fill-active",
+        type: "fill",
+        filter: ["all", ["==", "active", "true"], ["==", "$type", "Polygon"]],
+        paint: {
+          "fill-color": drawTheme.active,
+          "fill-outline-color": drawTheme.active,
+          "fill-opacity": 0.16,
+        },
+      },
+      {
+        id: "gl-draw-polygon-midpoint",
+        type: "circle",
+        filter: ["all", ["==", "$type", "Point"], ["==", "meta", "midpoint"]],
+        paint: { "circle-radius": 3, "circle-color": drawTheme.active },
+      },
+      {
+        id: "gl-draw-polygon-stroke-inactive",
+        type: "line",
+        filter: [
+          "all",
+          ["==", "active", "false"],
+          ["==", "$type", "Polygon"],
+          ["!=", "mode", "static"],
+        ],
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": drawTheme.inactive, "line-width": 2 },
+      },
+      {
+        id: "gl-draw-polygon-stroke-active",
+        type: "line",
+        filter: ["all", ["==", "active", "true"], ["==", "$type", "Polygon"]],
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: {
+          "line-color": drawTheme.active,
+          "line-dasharray": [1, 1.6],
+          "line-width": 2.2,
+        },
+      },
+      {
+        id: "gl-draw-line-inactive",
+        type: "line",
+        filter: [
+          "all",
+          ["==", "active", "false"],
+          ["==", "$type", "LineString"],
+          ["!=", "mode", "static"],
+        ],
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": drawTheme.inactive, "line-width": 2 },
+      },
+      {
+        id: "gl-draw-line-active",
+        type: "line",
+        filter: [
+          "all",
+          ["==", "$type", "LineString"],
+          ["==", "active", "true"],
+        ],
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: {
+          "line-color": drawTheme.active,
+          "line-dasharray": [1, 1.6],
+          "line-width": 2.2,
+        },
+      },
+      {
+        id: "gl-draw-polygon-and-line-vertex-stroke-inactive",
+        type: "circle",
+        filter: [
+          "all",
+          ["==", "meta", "vertex"],
+          ["==", "$type", "Point"],
+          ["!=", "mode", "static"],
+        ],
+        paint: { "circle-radius": 5.5, "circle-color": drawTheme.surface },
+      },
+      {
+        id: "gl-draw-polygon-and-line-vertex-inactive",
+        type: "circle",
+        filter: [
+          "all",
+          ["==", "meta", "vertex"],
+          ["==", "$type", "Point"],
+          ["!=", "mode", "static"],
+        ],
+        paint: { "circle-radius": 3.2, "circle-color": drawTheme.active },
+      },
+      {
+        id: "gl-draw-point-inactive",
+        type: "symbol",
+        filter: [
+          "all",
+          ["==", "active", "false"],
+          ["==", "$type", "Point"],
+          ["==", "meta", "feature"],
+          ["!=", "mode", "static"],
+        ],
+        layout: {
+          "icon-image": DRAW_POINT_ICON_IDS.inactive,
+          "icon-size": 1,
+          "icon-allow-overlap": true,
+          "icon-ignore-placement": true,
+        },
+      },
+      {
+        id: "gl-draw-point-active",
+        type: "symbol",
+        filter: [
+          "all",
+          ["==", "$type", "Point"],
+          ["==", "meta", "feature"],
+          ["==", "active", "true"],
+          ["!=", "mode", "static"],
+        ],
+        layout: {
+          "icon-image": DRAW_POINT_ICON_IDS.active,
+          "icon-size": 1.08,
+          "icon-allow-overlap": true,
+          "icon-ignore-placement": true,
+        },
+      },
+      {
+        id: "gl-draw-polygon-fill-static",
+        type: "fill",
+        filter: ["all", ["==", "mode", "static"], ["==", "$type", "Polygon"]],
+        paint: {
+          "fill-color": drawTheme.static,
+          "fill-outline-color": drawTheme.static,
+          "fill-opacity": 0.12,
+        },
+      },
+      {
+        id: "gl-draw-polygon-stroke-static",
+        type: "line",
+        filter: ["all", ["==", "mode", "static"], ["==", "$type", "Polygon"]],
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": drawTheme.static, "line-width": 2 },
+      },
+      {
+        id: "gl-draw-line-static",
+        type: "line",
+        filter: [
+          "all",
+          ["==", "mode", "static"],
+          ["==", "$type", "LineString"],
+        ],
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": drawTheme.static, "line-width": 2 },
+      },
+      {
+        id: "gl-draw-point-static",
+        type: "symbol",
+        filter: [
+          "all",
+          ["==", "mode", "static"],
+          ["==", "$type", "Point"],
+          ["==", "meta", "feature"],
+        ],
+        layout: {
+          "icon-image": DRAW_POINT_ICON_IDS.static,
+          "icon-size": 1,
+          "icon-allow-overlap": true,
+          "icon-ignore-placement": true,
+        },
+      },
+    ];
+    return showDraw
+      ? new MapboxDraw({
+        displayControlsDefault: false,
+        userProperties: true,
+        modes: {
+          ...MapboxDraw.modes,
+          draw_rectangle: RectangleMode,
+          draw_circle: CircleMode,
+          direct_select: DirectModeOverride,
+          simple_select: SimpleSelectModeOverride,
+        },
+        styles,
+      })
+      : null;
+  }, [showDraw]);
+
+  const memoizedOnDraw = useCallback(
+    (e: MapboxDraw.DrawEvent) => {
+      onDraw(e);
+    },
+    [onDraw],
+  );
+
+  const updateDrawCursor = useCallback(() => {
+    if (!map || !draw) return;
+    const canvas = map.getCanvasContainer();
+    if (!canvas) return;
+
+    const currentMode = draw.getMode?.() || "";
+    const selectedCount = draw.getSelectedIds?.().length ?? 0;
+    if (currentMode.startsWith("draw_")) {
+      canvas.style.cursor = "crosshair";
+      return;
+    }
+    canvas.style.cursor = selectedCount > 0 ? "move" : "";
+  }, [map, draw]);
+
+  const handleModeChange = useCallback(
+    (_e: MapboxDraw.DrawModeChangeEvent) => {
+      updateDrawCursor();
+    },
+    [updateDrawCursor],
+  );
+
+  const handleSelectionChange = useCallback(
+    (_e: MapboxDraw.DrawSelectionChangeEvent) => {
+      updateDrawCursor();
+    },
+    [updateDrawCursor],
+  );
+
+  useEffect(() => {
+    if (!map || !isLoaded || !draw) return;
+    registerDrawPointIcons(map);
+    map.addControl(draw as unknown as maplibregl.IControl);
+    updateDrawCursor();
+    map.on("draw.create", memoizedOnDraw);
+    map.on("draw.delete", memoizedOnDraw);
+    map.on("draw.update", memoizedOnDraw);
+    map.on("draw.modechange", handleModeChange);
+    map.on("draw.selectionchange", handleSelectionChange);
+    return () => {
+      map.off("draw.create", memoizedOnDraw);
+      map.off("draw.delete", memoizedOnDraw);
+      map.off("draw.update", memoizedOnDraw);
+      map.off("draw.modechange", handleModeChange);
+      map.off("draw.selectionchange", handleSelectionChange);
+      map.removeControl(draw as unknown as maplibregl.IControl);
+    };
+  }, [
+    map,
+    isLoaded,
+    draw,
+    memoizedOnDraw,
+    handleModeChange,
+    handleSelectionChange,
+    updateDrawCursor,
+  ]);
+
+  const handleDrawModeChange = useCallback(
+    (mode: string) => {
+      if (!draw) return;
+      draw?.changeMode(mode);
+      updateDrawCursor();
+    },
+    [draw, updateDrawCursor],
+  );
 
   const handleZoomIn = useCallback(() => {
     map?.zoomTo(map.getZoom() + 1, { duration: 300 });
@@ -809,7 +1176,7 @@ function MapControls({
         (error) => {
           console.error("Error getting location:", error);
           setWaitingForLocation(false);
-        }
+        },
       );
     }
   }, [map, onLocate]);
@@ -829,9 +1196,64 @@ function MapControls({
       className={cn(
         "absolute z-10 flex flex-col gap-1.5",
         positionClasses[position],
-        className
+        className,
       )}
     >
+      {showDraw && (
+        <ControlGroup>
+          <ControlButton
+            onClick={() => {
+              handleDrawModeChange("draw_point");
+            }}
+            label="Drag point"
+          >
+            <MapPin className="size-4" />
+          </ControlButton>
+          <ControlButton
+            onClick={() => {
+              handleDrawModeChange("draw_polygon");
+            }}
+            label="Draw polygon"
+          >
+            <Pentagon className="size-4" />
+          </ControlButton>
+          <ControlButton
+            onClick={() => {
+              handleDrawModeChange("draw_rectangle");
+            }}
+            label="Draw rectangle"
+          >
+            <Square className="size-4" />
+          </ControlButton>
+          <ControlButton
+            onClick={() => {
+              handleDrawModeChange("draw_circle");
+            }}
+            label="Draw circle"
+          >
+            <Circle className="size-4" />
+          </ControlButton>
+          <ControlButton
+            onClick={() => {
+              handleDrawModeChange("draw_line_string");
+            }}
+            label="Draw line"
+          >
+            <Waypoints className="size-4" />
+          </ControlButton>
+          <ControlButton
+            onClick={() => {
+              const selectedIds = draw?.getSelectedIds() || [];
+              if (selectedIds.length > 0) {
+                draw?.delete(selectedIds);
+              }
+            }}
+            label="Delete"
+          >
+            <Trash2 className="size-4" />
+          </ControlButton>
+        </ControlGroup>
+      )}
       {showZoom && (
         <ControlGroup>
           <ControlButton onClick={handleZoomIn} label="Zoom in">
@@ -903,6 +1325,7 @@ function CompassButton({ onClick }: { onClick: () => void }) {
       <svg
         ref={compassRef}
         viewBox="0 0 24 24"
+        aria-label="Compass"
         className="size-5 transition-transform duration-200"
         style={{ transformStyle: "preserve-3d" }}
       >
@@ -948,15 +1371,14 @@ function MapPopup({
   const popup = useMemo(() => {
     const popupInstance = new MapLibreGL.Popup({
       offset: 16,
-      ...popupOptions,
+      ...popupOptionsRef.current,
       closeButton: false,
     })
       .setMaxWidth("none")
       .setLngLat([longitude, latitude]);
 
     return popupInstance;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [latitude, longitude]);
 
   useEffect(() => {
     if (!map) return;
@@ -974,8 +1396,16 @@ function MapPopup({
         popup.remove();
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map]);
+  }, [
+    map,
+    container,
+    popup.addTo,
+    popup.isOpen,
+    popup.off,
+    popup.on,
+    popup.remove,
+    popup.setDOMContent,
+  ]);
 
   if (popup.isOpen()) {
     const prev = popupOptionsRef.current;
@@ -1004,7 +1434,7 @@ function MapPopup({
     <div
       className={cn(
         "relative rounded-md border bg-popover p-3 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95",
-        className
+        className,
       )}
     >
       {closeButton && (
@@ -1020,7 +1450,7 @@ function MapPopup({
       )}
       {children}
     </div>,
-    container
+    container,
   );
 }
 
@@ -1100,7 +1530,7 @@ function MapRoute({
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded, map]);
+  }, [isLoaded, map, color, dashArray, layerId, opacity, sourceId, width]);
 
   // When coordinates change, update the source data
   useEffect(() => {
@@ -1166,7 +1596,7 @@ function MapRoute({
 }
 
 type MapClusterLayerProps<
-  P extends GeoJSON.GeoJsonProperties = GeoJSON.GeoJsonProperties
+  P extends GeoJSON.GeoJsonProperties = GeoJSON.GeoJsonProperties,
 > = {
   /** GeoJSON FeatureCollection data or URL to fetch GeoJSON from */
   data: string | GeoJSON.FeatureCollection<GeoJSON.Point, P>;
@@ -1183,18 +1613,18 @@ type MapClusterLayerProps<
   /** Callback when an unclustered point is clicked */
   onPointClick?: (
     feature: GeoJSON.Feature<GeoJSON.Point, P>,
-    coordinates: [number, number]
+    coordinates: [number, number],
   ) => void;
   /** Callback when a cluster is clicked. If not provided, zooms into the cluster */
   onClusterClick?: (
     clusterId: number,
     coordinates: [number, number],
-    pointCount: number
+    pointCount: number,
   ) => void;
 };
 
 function MapClusterLayer<
-  P extends GeoJSON.GeoJsonProperties = GeoJSON.GeoJsonProperties
+  P extends GeoJSON.GeoJsonProperties = GeoJSON.GeoJsonProperties,
 >({
   data,
   clusterMaxZoom = 14,
@@ -1304,8 +1734,20 @@ function MapClusterLayer<
         // ignore
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded, map, sourceId]);
+  }, [
+    isLoaded,
+    map,
+    sourceId,
+    clusterLayerId,
+    unclusteredLayerId,
+    clusterCountLayerId,
+    clusterColors[0],
+    clusterMaxZoom,
+    clusterRadius,
+    clusterThresholds[0],
+    data,
+    pointColor,
+  ]);
 
   // Update source data when data prop changes (only for non-URL data)
   useEffect(() => {
@@ -1372,7 +1814,7 @@ function MapClusterLayer<
     const handleClusterClick = async (
       e: MapLibreGL.MapMouseEvent & {
         features?: MapLibreGL.MapGeoJSONFeature[];
-      }
+      },
     ) => {
       const features = map.queryRenderedFeatures(e.point, {
         layers: [clusterLayerId],
@@ -1384,7 +1826,7 @@ function MapClusterLayer<
       const pointCount = feature.properties?.point_count as number;
       const coordinates = (feature.geometry as GeoJSON.Point).coordinates as [
         number,
-        number
+        number,
       ];
 
       if (onClusterClick) {
@@ -1404,7 +1846,7 @@ function MapClusterLayer<
     const handlePointClick = (
       e: MapLibreGL.MapMouseEvent & {
         features?: MapLibreGL.MapGeoJSONFeature[];
-      }
+      },
     ) => {
       if (!onPointClick || !e.features?.length) return;
 
@@ -1420,7 +1862,7 @@ function MapClusterLayer<
 
       onPointClick(
         feature as unknown as GeoJSON.Feature<GeoJSON.Point, P>,
-        coordinates
+        coordinates,
       );
     };
 
@@ -1469,7 +1911,7 @@ function MapClusterLayer<
 }
 
 export {
-  Map,
+  MapLibreMap as Map,
   useMap,
   MapMarker,
   MarkerContent,

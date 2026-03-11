@@ -10,6 +10,9 @@
     "registry:build": "npx shadcn build -o ./public/r"
   },
   "dependencies": {
+    "@mapbox/mapbox-gl-draw": "^1.5.1",
+    "@turf/turf": "^7.3.4",
+    "@types/mapbox__mapbox-gl-draw": "^1.4.9",
     "@vercel/analytics": "^1.6.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -25,6 +28,7 @@
     "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.4.6",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
