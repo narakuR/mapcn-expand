@@ -1,11 +1,12 @@
+import { FlyToExample } from "./examples/flyto-example";
 import {
   AnalyticsExample,
   DeliveryExample,
-  TrendingExample,
+  DrawExample,
   EVChargingExample,
   TrailExample,
+  TrendingExample,
 } from "./examples/index";
-import { FlyToExample } from "./examples/flyto-example";
 
 export function ExamplesGrid() {
   return (
@@ -16,6 +17,7 @@ export function ExamplesGrid() {
       <EVChargingExample />
       <TrendingExample />
       <DeliveryExample />
+      <DrawExample />
     </div>
   );
 }
