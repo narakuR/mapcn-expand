@@ -55,6 +55,7 @@ export default function IntroductionPage() {
       ]}
     >
       <DocsSection>
+        <p>Built on <DocsLink href="https://github.com/AnmolSaini16/mapcn" external>mapcn</DocsLink> by <DocsLink href="https://github.com/AnmolSaini16" external>AnmolSaini16</DocsLink></p>
         <p>
           <strong>mapcn</strong> provides beautifully designed, accessible, and
           customizable map components. Built on{" "}

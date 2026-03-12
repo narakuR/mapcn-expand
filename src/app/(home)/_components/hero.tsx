@@ -1,11 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Copy, Check, ArrowRight } from "lucide-react";
+import { ArrowRight, Check, Copy } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
-const installCommand = "npx shadcn@latest add @mapcn/map";
+const installCommand = "npx shadcn@latest add @mapcn/mapcn-draw";
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);

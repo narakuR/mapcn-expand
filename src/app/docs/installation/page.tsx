@@ -1,3 +1,7 @@
+import type { Metadata } from "next";
+import { Card } from "@/components/ui/card";
+import { Map, MapControls } from "@/registry/map";
+import { CodeBlock } from "../_components/code-block";
 import {
   DocsCode,
   DocsLayout,
@@ -5,12 +9,8 @@ import {
   DocsNote,
   DocsSection,
 } from "../_components/docs";
-import { CodeBlock } from "../_components/code-block";
-import { Metadata } from "next";
-import { Card } from "@/components/ui/card";
-import { Map, MapControls } from "@/registry/map";
 
-const installCommand = "npx shadcn@latest add @mapcn/map";
+const installCommand = "npx shadcn@latest add @mapcn/mapcn-draw";
 
 const usageCode = `import { Map, MapControls } from "@/components/ui/map";
 import { Card } from "@/components/ui/card";

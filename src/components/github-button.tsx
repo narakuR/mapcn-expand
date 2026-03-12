@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Suspense } from "react";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function GitHubButton({ withCount = true }: { withCount?: boolean }) {
   return (
     <Button variant="ghost" size="sm" asChild>
       <Link
-        href="https://github.com/AnmolSaini16/mapcn"
+        href="https://github.com/narakuR/mapcn-draw"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -32,8 +32,8 @@ export function GitHubButton({ withCount = true }: { withCount?: boolean }) {
 
 export async function StarCount() {
   const response = await fetch(
-    "https://api.github.com/repos/AnmolSaini16/mapcn",
-    { next: { revalidate: 60 } }
+    "https://api.github.com/repos/narakuR/mapcn-draw",
+    { next: { revalidate: 60 } },
   );
 
   const data = await response.json();
