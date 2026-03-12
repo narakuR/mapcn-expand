@@ -10,7 +10,7 @@ import { MarkersExample } from "../_components/examples/markers-example";
 import { PopupExample } from "../_components/examples/popup-example";
 import { DraggableMarkerExample } from "../_components/examples/draggable-marker-example";
 import { getExampleSource } from "@/lib/get-example-source";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Markers",
@@ -27,7 +27,7 @@ export default function MarkersPage() {
     <DocsLayout
       title="Markers"
       description="Add interactive markers to your map with popups and tooltips."
-      prev={{ title: "Controls", href: "/docs/controls" }}
+      prev={{ title: "Draw Control", href: "/docs/draw-control" }}
       next={{ title: "Popups", href: "/docs/popups" }}
       toc={[
         { title: "Basic Example", slug: "basic-example" },

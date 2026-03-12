@@ -207,7 +207,6 @@ const MapLibreMap = forwardRef<MapRef, MapProps>(function MapLibreMap(
   const internalUpdateRef = useRef(false);
   const resolvedTheme = useResolvedTheme(themeProp);
   const initialPropsRef = useRef(props);
-
   const isControlled = viewport !== undefined && onViewportChange !== undefined;
 
   const onViewportChangeRef = useRef(onViewportChange);
@@ -757,7 +756,9 @@ type MapControlsProps = {
   /** Callback with user coordinates when located */
   onLocate?: (coords: { longitude: number; latitude: number }) => void;
   /** Callback when draw is created */
-  onDraw?: (e: MapboxDraw.DrawEvent) => void;
+  onDraw?: (e: MapboxDraw.DrawEvent & { features: GeoJSON.Feature[] }) => void;
+  /** Features to display in the map */
+  features?: GeoJSON.Feature[];
 };
 
 const positionClasses = {
@@ -861,9 +862,15 @@ function MapControls({
   onDraw = () => { },
   className,
   onLocate,
+  features = []
 }: MapControlsProps) {
   const { map, isLoaded } = useMap();
   const [waitingForLocation, setWaitingForLocation] = useState(false);
+  const [selectedDrawIds, setSelectedDrawIds] = useState<string[]>([]);
+  const isDrawControlMountedRef = useRef(false);
+  const featuresRef = useRef<GeoJSON.Feature[]>(features);
+  const onDrawRef = useRef(onDraw);
+
   const draw = useMemo(() => {
     Object.assign(MapboxDraw.constants.classes, {
       CANVAS: "maplibregl-canvas",
@@ -1072,12 +1079,13 @@ function MapControls({
       : null;
   }, [showDraw]);
 
-  const memoizedOnDraw = useCallback(
-    (e: MapboxDraw.DrawEvent) => {
-      onDraw(e);
-    },
-    [onDraw],
-  );
+  useEffect(() => {
+    onDrawRef.current = onDraw;
+  }, [onDraw]);
+
+  const handleDrawEvent = useCallback((e: MapboxDraw.DrawEvent) => {
+    onDrawRef.current(e as MapboxDraw.DrawEvent & { features: GeoJSON.Feature[] });
+  }, []);
 
   const updateDrawCursor = useCallback(() => {
     if (!map || !draw) return;
@@ -1102,6 +1110,7 @@ function MapControls({
 
   const handleSelectionChange = useCallback(
     (_e: MapboxDraw.DrawSelectionChangeEvent) => {
+      setSelectedDrawIds((_e.features || []).map(feature => feature.id as string));
       updateDrawCursor();
     },
     [updateDrawCursor],
@@ -1109,27 +1118,43 @@ function MapControls({
 
   useEffect(() => {
     if (!map || !isLoaded || !draw) return;
+    const drawControl = draw as unknown as maplibregl.IControl;
     registerDrawPointIcons(map);
-    map.addControl(draw as unknown as maplibregl.IControl);
+    if (!isDrawControlMountedRef.current) {
+      map.addControl(drawControl);
+      isDrawControlMountedRef.current = true;
+    }
     updateDrawCursor();
-    map.on("draw.create", memoizedOnDraw);
-    map.on("draw.delete", memoizedOnDraw);
-    map.on("draw.update", memoizedOnDraw);
+    if (featuresRef.current.length > 0) {
+      featuresRef.current.forEach(feature => {
+        draw.add(feature);
+      });
+    }
+    map.on("draw.create", handleDrawEvent);
+    map.on("draw.delete", handleDrawEvent);
+    map.on("draw.update", handleDrawEvent);
     map.on("draw.modechange", handleModeChange);
     map.on("draw.selectionchange", handleSelectionChange);
     return () => {
-      map.off("draw.create", memoizedOnDraw);
-      map.off("draw.delete", memoizedOnDraw);
-      map.off("draw.update", memoizedOnDraw);
+      map.off("draw.create", handleDrawEvent);
+      map.off("draw.delete", handleDrawEvent);
+      map.off("draw.update", handleDrawEvent);
       map.off("draw.modechange", handleModeChange);
       map.off("draw.selectionchange", handleSelectionChange);
-      map.removeControl(draw as unknown as maplibregl.IControl);
+      if (!isDrawControlMountedRef.current) return;
+      try {
+        map.removeControl(drawControl);
+      } catch (error) {
+        console.warn("Draw control already removed", error);
+      } finally {
+        isDrawControlMountedRef.current = false;
+      }
     };
   }, [
     map,
     isLoaded,
     draw,
-    memoizedOnDraw,
+    handleDrawEvent,
     handleModeChange,
     handleSelectionChange,
     updateDrawCursor,
@@ -1199,7 +1224,7 @@ function MapControls({
         className,
       )}
     >
-      {showDraw && (
+      {showDraw && !!draw && (
         <ControlGroup>
           <ControlButton
             onClick={() => {
@@ -1242,10 +1267,19 @@ function MapControls({
             <Waypoints className="size-4" />
           </ControlButton>
           <ControlButton
+            disabled={selectedDrawIds.length === 0}
             onClick={() => {
               const selectedIds = draw?.getSelectedIds() || [];
               if (selectedIds.length > 0) {
+                const deletedFeatures = selectedIds
+                  .map((id) => draw?.get(id))
+                  .filter((feature): feature is GeoJSON.Feature => !!feature);
                 draw?.delete(selectedIds);
+                if (deletedFeatures.length > 0) {
+                  map?.fire("draw.delete", {
+                    features: deletedFeatures,
+                  });
+                }
               }
             }}
             label="Delete"

@@ -1,13 +1,13 @@
+import type { Metadata } from "next";
+import { CodeBlock } from "../_components/code-block";
 import {
-  DocsLayout,
-  DocsSection,
   DocsCode,
+  DocsLayout,
   DocsLink,
   DocsNote,
   DocsPropTable,
+  DocsSection,
 } from "../_components/docs";
-import { CodeBlock } from "../_components/code-block";
-import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "API Reference",
@@ -42,6 +42,7 @@ export default function ApiReferencePage() {
         { title: "Map", slug: "map" },
         { title: "useMap", slug: "usemap" },
         { title: "MapControls", slug: "mapcontrols" },
+        { title: "MapControls Draw", slug: "mapcontrols-draw" },
         { title: "MapMarker", slug: "mapmarker" },
         { title: "MarkerContent", slug: "markercontent" },
         { title: "MarkerPopup", slug: "markerpopup" },
@@ -166,6 +167,14 @@ export default function ApiReferencePage() {
           Renders map control buttons (zoom, compass, locate, fullscreen). Must
           be used inside <DocsCode>Map</DocsCode>.
         </p>
+        <p id="mapcontrols-draw" className="scroll-mt-24">
+          Draw controls are also supported through <DocsCode>showDraw</DocsCode>
+          . When enabled, users can draw point, polygon, rectangle, circle, and
+          line shapes. Draw lifecycle events are exposed through{" "}
+          <DocsCode>onDraw</DocsCode> for <DocsCode>draw.create</DocsCode>,{" "}
+          <DocsCode>draw.update</DocsCode>, and <DocsCode>draw.delete</DocsCode>
+          .
+        </p>
         <DocsPropTable
           props={[
             {
@@ -199,6 +208,13 @@ export default function ApiReferencePage() {
               description: "Show fullscreen toggle button.",
             },
             {
+              name: "showDraw",
+              type: "boolean",
+              default: "false",
+              description:
+                "Show draw controls for point, polygon, rectangle, circle, and line editing.",
+            },
+            {
               name: "className",
               type: "string",
               description: "Additional CSS classes for the controls container.",
@@ -207,6 +223,12 @@ export default function ApiReferencePage() {
               name: "onLocate",
               type: "(coords: { longitude: number; latitude: number }) => void",
               description: "Callback with user coordinates when located.",
+            },
+            {
+              name: "onDraw",
+              type: "(e: MapboxDraw.DrawEvent) => void",
+              description:
+                "Callback fired when draw features are created, updated, or deleted.",
             },
           ]}
         />

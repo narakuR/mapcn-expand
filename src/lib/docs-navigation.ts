@@ -4,6 +4,7 @@ import {
   Code,
   Braces,
   MapPin,
+  Pencil,
   MessageSquare,
   Route,
   Wrench,
@@ -37,6 +38,7 @@ export const docsNavigation: NavGroup[] = [
     items: [
       { title: "Map", href: "/docs/basic-map", icon: Map },
       { title: "Controls", href: "/docs/controls", icon: Settings },
+      { title: "Draw Control", href: "/docs/draw-control", icon: Pencil },
       { title: "Markers", href: "/docs/markers", icon: MapPin },
       { title: "Popups", href: "/docs/popups", icon: MessageSquare },
       { title: "Routes", href: "/docs/routes", icon: Route },

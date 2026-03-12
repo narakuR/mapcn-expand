@@ -86,8 +86,22 @@ CircleMode.onClick = CircleMode.onTap = function (
   });
 };
 
-CircleMode.onStop = function () {
+CircleMode.onStop = function (state) {
+  doubleClickZoom.enable(this);
   dragPan.enable(this);
+  this.updateUIClasses({ mouse: Constants.cursors.NONE });
+  this.activateUIButton();
+
+  if (this.getFeature(String(state.polygon.id)) === undefined) return;
+
+  if (state.polygon.isValid()) {
+    this.map.fire("draw.create", {
+      features: [state.polygon.toGeoJSON()],
+    });
+  } else {
+    this.deleteFeature(String(state.polygon.id), { silent: true });
+    this.changeMode(Constants.modes.SIMPLE_SELECT, {}, { silent: true });
+  }
 };
 
 CircleMode.toDisplayFeatures = (

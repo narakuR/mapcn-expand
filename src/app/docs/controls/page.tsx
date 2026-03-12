@@ -2,7 +2,7 @@ import { DocsLayout, DocsSection, DocsCode } from "../_components/docs";
 import { ComponentPreview } from "../_components/component-preview";
 import { MapControlsExample } from "../_components/examples/map-controls-example";
 import { getExampleSource } from "@/lib/get-example-source";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Controls",
@@ -16,7 +16,7 @@ export default function ControlsPage() {
       title="Controls"
       description="Add interactive controls to your map for zoom, compass, location, and fullscreen."
       prev={{ title: "Map", href: "/docs/basic-map" }}
-      next={{ title: "Markers", href: "/docs/markers" }}
+      next={{ title: "Draw Control", href: "/docs/draw-control" }}
     >
       <DocsSection>
         <p>
