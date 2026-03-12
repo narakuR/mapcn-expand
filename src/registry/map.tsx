@@ -106,6 +106,7 @@ function useResolvedTheme(themeProp?: "light" | "dark"): Theme {
 type MapContextValue = {
   map: MapLibreGL.Map | null;
   isLoaded: boolean;
+  resolvedTheme: Theme;
 };
 
 const MapContext = createContext<MapContextValue | null>(null);
@@ -342,6 +343,7 @@ const MapLibreMap = forwardRef<MapRef, MapProps>(function MapLibreMap(
     () => ({
       map: mapInstance,
       isLoaded: isLoaded && isStyleLoaded,
+      resolvedTheme,
     }),
     [mapInstance, isLoaded, isStyleLoaded],
   );
@@ -768,11 +770,18 @@ const positionClasses = {
   "bottom-right": "bottom-10 right-2",
 };
 
-const DRAW_THEME = {
-  inactive: "#64748b",
-  active: "#3b82f6",
-  static: "#71717a",
-  surface: "#ffffff",
+const DRAW_THEME_DARK = {
+  inactive: "rgb(255, 255, 255)",
+  active: "rgb(255, 255, 255)",
+  static: "rgb(255, 255, 255)",
+  surface: "rgb(0, 0, 0, 0.6)",
+} as const;
+
+const DRAW_THEME_LIGHT = {
+  inactive: "rgb(0, 0, 0)",
+  active: "rgb(0, 0, 0)",
+  static: "rgb(0, 0, 0)",
+  surface: "rgb(255, 255, 255, 0.6)",
 } as const;
 
 const DRAW_POINT_ICON_IDS = {
@@ -780,6 +789,13 @@ const DRAW_POINT_ICON_IDS = {
   active: "draw-point-pin-active",
   static: "draw-point-pin-static",
 } as const;
+
+interface DrawTheme {
+  inactive: string;
+  active: string;
+  static: string;
+  surface: string;
+}
 
 function getDrawCursorHintText(
   mode: string,
@@ -806,31 +822,43 @@ function createPinIconDataUrl(fill: string, stroke: string) {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
-function registerDrawPointIcons(map: MapLibreGL.Map) {
+function registerDrawPointIcons(
+  map: MapLibreGL.Map,
+  drawTheme: DrawTheme,
+) {
+  if (!map.isStyleLoaded()) return;
+
   const definitions = [
     {
       id: DRAW_POINT_ICON_IDS.inactive,
-      fill: DRAW_THEME.inactive,
-      stroke: DRAW_THEME.surface,
+      fill: drawTheme.inactive,
+      stroke: drawTheme.surface,
     },
     {
       id: DRAW_POINT_ICON_IDS.active,
-      fill: DRAW_THEME.active,
-      stroke: DRAW_THEME.surface,
+      fill: drawTheme.active,
+      stroke: drawTheme.surface,
     },
     {
       id: DRAW_POINT_ICON_IDS.static,
-      fill: DRAW_THEME.static,
-      stroke: DRAW_THEME.surface,
+      fill: drawTheme.static,
+      stroke: drawTheme.surface,
     },
   ];
 
   definitions.forEach(({ id, fill, stroke }) => {
-    if (map.hasImage(id)) return;
+    try {
+      if (map.hasImage(id)) map.removeImage(id);
+    } catch {
+      return;
+    }
     const image = new Image(36, 36);
     image.onload = () => {
-      if (!map.hasImage(id)) {
-        map.addImage(id, image, { pixelRatio: 2 });
+      try {
+        if (!map.isStyleLoaded()) return;
+        if (!map.hasImage(id)) map.addImage(id, image, { pixelRatio: 2 });
+      } catch {
+        // Ignore stale async callbacks during style/theme transitions.
       }
     };
     image.src = createPinIconDataUrl(fill, stroke);
@@ -884,7 +912,8 @@ function MapControls({
   onLocate,
   features = []
 }: MapControlsProps) {
-  const { map, isLoaded } = useMap();
+  const { map, isLoaded, resolvedTheme } = useMap();
+
   const [waitingForLocation, setWaitingForLocation] = useState(false);
   const [selectedDrawIds, setSelectedDrawIds] = useState<string[]>([]);
   const [cursorHint, setCursorHint] = useState<{
@@ -904,6 +933,8 @@ function MapControls({
   const onDrawRef = useRef(onDraw);
 
   const draw = useMemo(() => {
+    const drawTheme =
+      resolvedTheme === "dark" ? DRAW_THEME_DARK : DRAW_THEME_LIGHT;
     Object.assign(MapboxDraw.constants.classes, {
       CANVAS: "maplibregl-canvas",
       CONTROL_BASE: "maplibregl-ctrl",
@@ -911,7 +942,6 @@ function MapControls({
       CONTROL_GROUP: "maplibregl-ctrl-group",
       ATTRIBUTION: "maplibregl-ctrl-attrib",
     });
-    const drawTheme = DRAW_THEME;
     const styles = [
       {
         id: "gl-draw-polygon-fill-inactive",
@@ -1095,7 +1125,7 @@ function MapControls({
         },
       },
     ];
-    return showDraw
+    return showDraw && isLoaded
       ? new MapboxDraw({
         displayControlsDefault: false,
         userProperties: true,
@@ -1109,7 +1139,7 @@ function MapControls({
         styles,
       })
       : null;
-  }, [showDraw]);
+  }, [showDraw, resolvedTheme, isLoaded]);
 
   useEffect(() => {
     onDrawRef.current = onDraw;
@@ -1188,7 +1218,9 @@ function MapControls({
   useEffect(() => {
     if (!map || !isLoaded || !draw) return;
     const drawControl = draw as unknown as maplibregl.IControl;
-    registerDrawPointIcons(map);
+    const drawTheme =
+      resolvedTheme === "dark" ? DRAW_THEME_DARK : DRAW_THEME_LIGHT;
+    registerDrawPointIcons(map, drawTheme);
     if (!isDrawControlMountedRef.current) {
       map.addControl(drawControl);
       isDrawControlMountedRef.current = true;
@@ -1245,7 +1277,7 @@ function MapControls({
       try {
         map.removeControl(drawControl);
       } catch (error) {
-        console.warn("Draw control already removed", error);
+        // console.warn("Draw control already removed", error);
       } finally {
         isDrawControlMountedRef.current = false;
       }
@@ -1259,6 +1291,7 @@ function MapControls({
     handleSelectionChange,
     handleMapMouseMove,
     hideCursorHint,
+    resolvedTheme,
     updateDrawCursor,
   ]);
 
