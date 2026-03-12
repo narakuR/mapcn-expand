@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "@naraku/mapcn-expand",
-  "homepage": "https://github.com/narakuR/mapcn-expand",
+  "homepage": "https://naraku-mapcn-expand.vercel.app",
   "items": [
     {
       "name": "map",
