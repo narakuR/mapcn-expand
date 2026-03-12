@@ -6,7 +6,7 @@ export function Footer() {
     <footer className="w-full py-5 border-t">
       <div className="w-full container flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-foreground">mapcn-draw</span>
+          <span className="font-medium text-foreground">mapcn-expand</span>
           <span className="text-muted-foreground/80">•</span>
           <span>
             Built by
@@ -28,7 +28,7 @@ export function Footer() {
 
           <Button variant="ghost" size="sm" asChild>
             <Link
-              href="https://github.com/narakuR/mapcn-draw"
+              href="https://github.com/narakuR/mapcn-expand"
               target="_blank"
               rel="noopener noreferrer"
             >

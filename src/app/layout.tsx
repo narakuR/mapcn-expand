@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-const siteName = "mapcn-draw";
+const siteName = "mapcn-expand";
 const creator = "https://github.com/narakuR";
 const siteDescription =
   "A collection of beautifully designed, accessible, and customizable map components. Built on MapLibre GL. Styled with Tailwind CSS. Works with shadcn/ui. Built on mapcn by https://github.com/AnmolSaini16";
@@ -24,8 +24,8 @@ const siteDescription =
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "mapcn-draw - Beautiful maps made simple",
-    template: "%s - mapcn-draw",
+    default: "mapcn-expand - Beautiful maps made simple",
+    template: "%s - mapcn-expand",
   },
   description: siteDescription,
   keywords: [
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     "interactive maps",
     "map markers",
     "map controls",
-    "mapcn-draw",
+    "mapcn-expand",
     "mapcn",
     "mapcn draw",
     "mapcn draw library",
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     { name: "narakuR", url: "https://github.com/narakuR" },
   ],
   creator: "narakuR",
-  publisher: "mapcn-draw",
+  publisher: "mapcn-expand",
   robots: {
     index: true,
     follow: true,
@@ -73,20 +73,20 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: siteUrl,
     siteName: siteName,
-    title: "mapcn-draw - Beautiful maps made simple",
+    title: "mapcn-expand - Beautiful maps made simple",
     description: siteDescription,
     images: [
       {
         url: "/banner.png",
         width: 1200,
         height: 630,
-        alt: "mapcn-draw - Beautiful maps, made simple",
+        alt: "mapcn-expand - Beautiful maps, made simple",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "mapcn-draw - Beautiful maps made simple",
+    title: "mapcn-expand - Beautiful maps made simple",
     description: siteDescription,
     creator: creator,
     images: ["/banner.png"],

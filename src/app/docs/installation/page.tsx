@@ -10,7 +10,7 @@ import {
   DocsSection,
 } from "../_components/docs";
 
-const installCommand = "npx shadcn@latest add @mapcn/mapcn-draw";
+const installCommand = "npx shadcn@latest add @mapcn/mapcn-expand";
 
 const usageCode = `import { Map, MapControls } from "@/components/ui/map";
 import { Card } from "@/components/ui/card";

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
-const installCommand = "npx shadcn@latest add @mapcn/mapcn-draw";
+const installCommand = "npx shadcn@latest add @mapcn/mapcn-expand";
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);

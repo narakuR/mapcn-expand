@@ -7,7 +7,7 @@ export function GitHubButton({ withCount = true }: { withCount?: boolean }) {
   return (
     <Button variant="ghost" size="sm" asChild>
       <Link
-        href="https://github.com/narakuR/mapcn-draw"
+        href="https://github.com/narakuR/mapcn-expand"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -32,7 +32,7 @@ export function GitHubButton({ withCount = true }: { withCount?: boolean }) {
 
 export async function StarCount() {
   const response = await fetch(
-    "https://api.github.com/repos/narakuR/mapcn-draw",
+    "https://api.github.com/repos/narakuR/mapcn-expand",
     { next: { revalidate: 60 } },
   );
 
