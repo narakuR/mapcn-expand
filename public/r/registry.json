@@ -15,6 +15,41 @@
           "path": "src/registry/map.tsx",
           "type": "registry:ui",
           "target": "components/ui/map.tsx"
+        },
+        {
+          "path": "src/lib/map-draw/index.ts",
+          "type": "registry:lib",
+          "target": "lib/map-draw/index.ts"
+        },
+        {
+          "path": "src/lib/map-draw/modes/CircleMode.ts",
+          "type": "registry:lib",
+          "target": "lib/map-draw/modes/CircleMode.ts"
+        },
+        {
+          "path": "src/lib/map-draw/modes/DirectModeOverride.ts",
+          "type": "registry:lib",
+          "target": "lib/map-draw/modes/DirectModeOverride.ts"
+        },
+        {
+          "path": "src/lib/map-draw/modes/RectangleMode.ts",
+          "type": "registry:lib",
+          "target": "lib/map-draw/modes/RectangleMode.ts"
+        },
+        {
+          "path": "src/lib/map-draw/modes/SimpleSelectModeOverride.ts",
+          "type": "registry:lib",
+          "target": "lib/map-draw/modes/SimpleSelectModeOverride.ts"
+        },
+        {
+          "path": "src/lib/map-draw/utils/createSupplementaryPointsForCircle.ts",
+          "type": "registry:lib",
+          "target": "lib/map-draw/utils/createSupplementaryPointsForCircle.ts"
+        },
+        {
+          "path": "src/lib/map-draw/utils/drag_pan.ts",
+          "type": "registry:lib",
+          "target": "lib/map-draw/utils/drag_pan.ts"
         }
       ],
       "css": {
