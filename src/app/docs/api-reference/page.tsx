@@ -226,9 +226,14 @@ export default function ApiReferencePage() {
             },
             {
               name: "onDraw",
-              type: "(e: MapboxDraw.DrawEvent) => void",
+              type: "(e: MapboxDraw.DrawEvent & { features: GeoJSON.Feature[] }) => void",
               description:
                 "Callback fired when draw features are created, updated, or deleted.",
+            },
+            {
+              name: "features",
+              type: "GeoJSON.Feature[]",
+              description: "Initial features loaded into the draw store.",
             },
           ]}
         />

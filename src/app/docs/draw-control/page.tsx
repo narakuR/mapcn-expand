@@ -1,15 +1,15 @@
-import {
-  DocsLayout,
-  DocsSection,
-  DocsCode,
-  DocsNote,
-  DocsLink,
-  DocsPropTable,
-} from "../_components/docs";
-import { ComponentPreview } from "../_components/component-preview";
-import { DrawControlExample } from "../_components/examples/draw-control-example";
-import { getExampleSource } from "@/lib/get-example-source";
 import type { Metadata } from "next";
+import { getExampleSource } from "@/lib/get-example-source";
+import { ComponentPreview } from "../_components/component-preview";
+import {
+  DocsCode,
+  DocsLayout,
+  DocsLink,
+  DocsNote,
+  DocsPropTable,
+  DocsSection,
+} from "../_components/docs";
+import { DrawControlExample } from "../_components/examples/draw-control-example";
 
 export const metadata: Metadata = {
   title: "Draw Control",
@@ -30,6 +30,7 @@ export default function DrawControlPage() {
         { title: "Draw Events", slug: "draw-events" },
         { title: "Underlying Library", slug: "underlying-library" },
         { title: "MapControls Draw Props", slug: "mapcontrols-draw-props" },
+        { title: "MapControls API", slug: "mapcontrols-api" },
         { title: "Complete Example", slug: "complete-example" },
         { title: "Practical Notes", slug: "practical-notes" },
       ]}
@@ -68,9 +69,7 @@ export default function DrawControlPage() {
           <li>
             <DocsCode>draw_line_string</DocsCode>: draw a polyline.
           </li>
-          <li>
-            Delete button: removes currently selected features only.
-          </li>
+          <li>Delete button: removes currently selected features only.</li>
         </ul>
       </DocsSection>
 
@@ -93,10 +92,7 @@ export default function DrawControlPage() {
         </p>
         <p>
           For advanced behaviors, custom modes, and full API details, refer to{" "}
-          <DocsLink
-            href="https://github.com/mapbox/mapbox-gl-draw"
-            external
-          >
+          <DocsLink href="https://github.com/mapbox/mapbox-gl-draw" external>
             mapbox/mapbox-gl-draw
           </DocsLink>
           .
@@ -104,6 +100,10 @@ export default function DrawControlPage() {
       </DocsSection>
 
       <DocsSection title="MapControls Draw Props">
+        <p>
+          These props are the core API for enabling draw mode and handling draw
+          state.
+        </p>
         <DocsPropTable
           props={[
             {
@@ -115,9 +115,16 @@ export default function DrawControlPage() {
             },
             {
               name: "onDraw",
-              type: "(e: MapboxDraw.DrawEvent) => void",
+              type: "(e: MapboxDraw.DrawEvent & { features: GeoJSON.Feature[] }) => void",
               description:
-                "Fires on draw.create, draw.update, and draw.delete with event payload.",
+                "Fires on draw.create, draw.update, and draw.delete. Includes changed features in e.features.",
+            },
+            {
+              name: "features",
+              type: "GeoJSON.Feature[]",
+              default: "[]",
+              description:
+                "Initial features loaded into the draw store when the control mounts.",
             },
           ]}
         />
