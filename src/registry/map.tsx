@@ -868,6 +868,7 @@ function MapControls({
   const [waitingForLocation, setWaitingForLocation] = useState(false);
   const [selectedDrawIds, setSelectedDrawIds] = useState<string[]>([]);
   const isDrawControlMountedRef = useRef(false);
+  const isShiftPressedRef = useRef(false);
   const featuresRef = useRef<GeoJSON.Feature[]>(features);
   const onDrawRef = useRef(onDraw);
 
@@ -1092,6 +1093,11 @@ function MapControls({
     const canvas = map.getCanvasContainer();
     if (!canvas) return;
 
+    if (isShiftPressedRef.current) {
+      canvas.style.cursor = "crosshair";
+      return;
+    }
+
     const currentMode = draw.getMode?.() || "";
     const selectedCount = draw.getSelectedIds?.().length ?? 0;
     if (currentMode.startsWith("draw_")) {
@@ -1130,17 +1136,43 @@ function MapControls({
         draw.add(feature);
       });
     }
+    
     map.on("draw.create", handleDrawEvent);
     map.on("draw.delete", handleDrawEvent);
     map.on("draw.update", handleDrawEvent);
     map.on("draw.modechange", handleModeChange);
     map.on("draw.selectionchange", handleSelectionChange);
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Shift") return;
+      isShiftPressedRef.current = true;
+      updateDrawCursor();
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (event.key !== "Shift") return;
+      isShiftPressedRef.current = false;
+      updateDrawCursor();
+    };
+
+    const handleWindowBlur = () => {
+      isShiftPressedRef.current = false;
+      updateDrawCursor();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("blur", handleWindowBlur);
+
     return () => {
       map.off("draw.create", handleDrawEvent);
       map.off("draw.delete", handleDrawEvent);
       map.off("draw.update", handleDrawEvent);
       map.off("draw.modechange", handleModeChange);
       map.off("draw.selectionchange", handleSelectionChange);
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("blur", handleWindowBlur);
       if (!isDrawControlMountedRef.current) return;
       try {
         map.removeControl(drawControl);
