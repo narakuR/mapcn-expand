@@ -9,6 +9,9 @@
     "@mapbox/mapbox-gl-draw",
     "@turf/turf"
   ],
+  "devDependencies": [
+    "@types/mapbox__mapbox-gl-draw"
+  ],
   "registryDependencies": [],
   "files": [
     {

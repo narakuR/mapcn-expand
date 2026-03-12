@@ -9,6 +9,7 @@
       "title": "Map",
       "description": "A MapLibre-powered map component with markers, popups, tooltips, routes, and controls.",
       "dependencies": ["maplibre-gl", "lucide-react", "@mapbox/mapbox-gl-draw", "@turf/turf"],
+      "devDependencies": ["@types/mapbox__mapbox-gl-draw"],
       "registryDependencies": [],
       "files": [
         {
