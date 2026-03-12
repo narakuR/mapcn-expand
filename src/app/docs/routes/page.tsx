@@ -1,14 +1,14 @@
-import {
-  DocsLayout,
-  DocsSection,
-  DocsCode,
-  DocsLink,
-} from "../_components/docs";
-import { ComponentPreview } from "../_components/component-preview";
-import { RouteExample } from "../_components/examples/route-example";
-import { OsrmRouteExample } from "../_components/examples/osrm-route-example";
+import type { Metadata } from "next";
 import { getExampleSource } from "@/lib/get-example-source";
-import { Metadata } from "next";
+import { ComponentPreview } from "../_components/component-preview";
+import {
+  DocsCode,
+  DocsLayout,
+  DocsLink,
+  DocsSection,
+} from "../_components/docs";
+import { OsrmRouteExample } from "../_components/examples/osrm-route-example";
+import { RouteExample } from "../_components/examples/route-example";
 
 export const metadata: Metadata = {
   title: "Routes",

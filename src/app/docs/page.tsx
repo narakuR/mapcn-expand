@@ -1,6 +1,6 @@
-import { Zap, Moon, Puzzle, Code, Box, Layers } from "lucide-react";
-import { DocsLayout, DocsSection, DocsLink } from "./_components/docs";
-import { Metadata } from "next";
+import { Box, Code, Layers, Moon, Puzzle, Zap } from "lucide-react";
+import type { Metadata } from "next";
+import { DocsLayout, DocsLink, DocsSection } from "./_components/docs";
 
 const features = [
   {

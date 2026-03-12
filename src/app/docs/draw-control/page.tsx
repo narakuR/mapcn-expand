@@ -3,6 +3,7 @@ import {
   DocsSection,
   DocsCode,
   DocsNote,
+  DocsLink,
   DocsPropTable,
 } from "../_components/docs";
 import { ComponentPreview } from "../_components/component-preview";
@@ -27,6 +28,7 @@ export default function DrawControlPage() {
         { title: "Quick Start", slug: "quick-start" },
         { title: "Supported Modes", slug: "supported-modes" },
         { title: "Draw Events", slug: "draw-events" },
+        { title: "Underlying Library", slug: "underlying-library" },
         { title: "MapControls Draw Props", slug: "mapcontrols-draw-props" },
         { title: "Complete Example", slug: "complete-example" },
         { title: "Practical Notes", slug: "practical-notes" },
@@ -82,6 +84,23 @@ export default function DrawControlPage() {
           assuming every payload is a creation. Updates and deletions are also
           emitted through the same callback.
         </DocsNote>
+      </DocsSection>
+
+      <DocsSection title="Underlying Library">
+        <p>
+          The draw capabilities on this page are implemented on top of{" "}
+          <DocsCode>@mapbox/mapbox-gl-draw</DocsCode>.
+        </p>
+        <p>
+          For advanced behaviors, custom modes, and full API details, refer to{" "}
+          <DocsLink
+            href="https://github.com/mapbox/mapbox-gl-draw"
+            external
+          >
+            mapbox/mapbox-gl-draw
+          </DocsLink>
+          .
+        </p>
       </DocsSection>
 
       <DocsSection title="MapControls Draw Props">

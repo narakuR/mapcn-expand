@@ -1,6 +1,6 @@
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { DocsSidebar } from "./_components/docs-sidebar";
 import { DocsHeader } from "./_components/docs-header";
+import { DocsSidebar } from "./_components/docs-sidebar";
 
 export default function DocsLayout({
   children,
