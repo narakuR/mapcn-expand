@@ -781,6 +781,26 @@ const DRAW_POINT_ICON_IDS = {
   static: "draw-point-pin-static",
 } as const;
 
+function getDrawCursorHintText(
+  mode: string,
+  selectedCount: number,
+  isShiftPressed: boolean,
+) {
+  if (isShiftPressed) return "Shift is pressed. Crosshair mode is active.";
+  if (mode === "draw_point") return "Click to place a point.";
+  if (mode === "draw_polygon")
+    return "Click to add vertices, double-click to finish polygon.";
+  if (mode === "draw_rectangle")
+    return "Click once for start point, click again to finish rectangle.";
+  if (mode === "draw_circle")
+    return "Click and drag to draw a circle.";
+  if (mode === "draw_line_string")
+    return "Click to add points, double-click to finish line.";
+  if (selectedCount > 0)
+    return "Drag selected shape to move it, or double-click to edit shape.";
+  return null;
+}
+
 function createPinIconDataUrl(fill: string, stroke: string) {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24"><path d="M12 22s7-5.58 7-12a7 7 0 1 0-14 0c0 6.42 7 12 7 12Z" fill="${fill}" stroke="${stroke}" stroke-width="1.75" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.6" fill="${stroke}"/></svg>`;
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
@@ -867,6 +887,17 @@ function MapControls({
   const { map, isLoaded } = useMap();
   const [waitingForLocation, setWaitingForLocation] = useState(false);
   const [selectedDrawIds, setSelectedDrawIds] = useState<string[]>([]);
+  const [cursorHint, setCursorHint] = useState<{
+    isVisible: boolean;
+    text: string;
+    x: number;
+    y: number;
+  }>({
+    isVisible: false,
+    text: "",
+    x: 0,
+    y: 0,
+  });
   const isDrawControlMountedRef = useRef(false);
   const isShiftPressedRef = useRef(false);
   const featuresRef = useRef<GeoJSON.Feature[]>(features);
@@ -1107,6 +1138,38 @@ function MapControls({
     canvas.style.cursor = selectedCount > 0 ? "move" : "";
   }, [map, draw]);
 
+  const hideCursorHint = useCallback(() => {
+    setCursorHint((previous) =>
+      previous.isVisible ? { ...previous, isVisible: false } : previous,
+    );
+  }, []);
+
+  const handleMapMouseMove = useCallback(
+    (event: MapLibreGL.MapMouseEvent) => {
+      if (!draw) return;
+      const currentMode = draw.getMode?.() || "";
+      const selectedCount = draw.getSelectedIds?.().length ?? 0;
+      const hintText = getDrawCursorHintText(
+        currentMode,
+        selectedCount,
+        isShiftPressedRef.current,
+      );
+
+      if (!hintText) {
+        hideCursorHint();
+        return;
+      }
+
+      setCursorHint({
+        isVisible: true,
+        text: hintText,
+        x: event.point.x + 14,
+        y: event.point.y + 14,
+      });
+    },
+    [draw, hideCursorHint],
+  );
+
   const handleModeChange = useCallback(
     (_e: MapboxDraw.DrawModeChangeEvent) => {
       updateDrawCursor();
@@ -1136,12 +1199,14 @@ function MapControls({
         draw.add(feature);
       });
     }
-    
+
     map.on("draw.create", handleDrawEvent);
     map.on("draw.delete", handleDrawEvent);
     map.on("draw.update", handleDrawEvent);
     map.on("draw.modechange", handleModeChange);
     map.on("draw.selectionchange", handleSelectionChange);
+    map.on("mousemove", handleMapMouseMove);
+    map.on("mouseout", hideCursorHint);
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Shift") return;
@@ -1158,6 +1223,7 @@ function MapControls({
     const handleWindowBlur = () => {
       isShiftPressedRef.current = false;
       updateDrawCursor();
+      hideCursorHint();
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -1170,6 +1236,8 @@ function MapControls({
       map.off("draw.update", handleDrawEvent);
       map.off("draw.modechange", handleModeChange);
       map.off("draw.selectionchange", handleSelectionChange);
+      map.off("mousemove", handleMapMouseMove);
+      map.off("mouseout", hideCursorHint);
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
       window.removeEventListener("blur", handleWindowBlur);
@@ -1189,6 +1257,8 @@ function MapControls({
     handleDrawEvent,
     handleModeChange,
     handleSelectionChange,
+    handleMapMouseMove,
+    hideCursorHint,
     updateDrawCursor,
   ]);
 
@@ -1249,115 +1319,128 @@ function MapControls({
   }, [map]);
 
   return (
-    <div
-      className={cn(
-        "absolute z-10 flex flex-col gap-1.5",
-        positionClasses[position],
-        className,
-      )}
-    >
-      {showDraw && !!draw && (
-        <ControlGroup>
-          <ControlButton
-            onClick={() => {
-              handleDrawModeChange("draw_point");
-            }}
-            label="Drag point"
-          >
-            <MapPin className="size-4" />
-          </ControlButton>
-          <ControlButton
-            onClick={() => {
-              handleDrawModeChange("draw_polygon");
-            }}
-            label="Draw polygon"
-          >
-            <Pentagon className="size-4" />
-          </ControlButton>
-          <ControlButton
-            onClick={() => {
-              handleDrawModeChange("draw_rectangle");
-            }}
-            label="Draw rectangle"
-          >
-            <Square className="size-4" />
-          </ControlButton>
-          <ControlButton
-            onClick={() => {
-              handleDrawModeChange("draw_circle");
-            }}
-            label="Draw circle"
-          >
-            <Circle className="size-4" />
-          </ControlButton>
-          <ControlButton
-            onClick={() => {
-              handleDrawModeChange("draw_line_string");
-            }}
-            label="Draw line"
-          >
-            <Waypoints className="size-4" />
-          </ControlButton>
-          <ControlButton
-            disabled={selectedDrawIds.length === 0}
-            onClick={() => {
-              const selectedIds = draw?.getSelectedIds() || [];
-              if (selectedIds.length > 0) {
-                const deletedFeatures = selectedIds
-                  .map((id) => draw?.get(id))
-                  .filter((feature): feature is GeoJSON.Feature => !!feature);
-                draw?.delete(selectedIds);
-                if (deletedFeatures.length > 0) {
-                  map?.fire("draw.delete", {
-                    features: deletedFeatures,
-                  });
+    <>
+      <div
+        className={cn(
+          "absolute z-10 flex flex-col gap-1.5",
+          positionClasses[position],
+          className,
+        )}
+      >
+        {showDraw && !!draw && (
+          <ControlGroup>
+            <ControlButton
+              onClick={() => {
+                handleDrawModeChange("draw_point");
+              }}
+              label="Drag point"
+            >
+              <MapPin className="size-4" />
+            </ControlButton>
+            <ControlButton
+              onClick={() => {
+                handleDrawModeChange("draw_polygon");
+              }}
+              label="Draw polygon"
+            >
+              <Pentagon className="size-4" />
+            </ControlButton>
+            <ControlButton
+              onClick={() => {
+                handleDrawModeChange("draw_rectangle");
+              }}
+              label="Draw rectangle"
+            >
+              <Square className="size-4" />
+            </ControlButton>
+            <ControlButton
+              onClick={() => {
+                handleDrawModeChange("draw_circle");
+              }}
+              label="Draw circle"
+            >
+              <Circle className="size-4" />
+            </ControlButton>
+            <ControlButton
+              onClick={() => {
+                handleDrawModeChange("draw_line_string");
+              }}
+              label="Draw line"
+            >
+              <Waypoints className="size-4" />
+            </ControlButton>
+            <ControlButton
+              disabled={selectedDrawIds.length === 0}
+              onClick={() => {
+                const selectedIds = draw?.getSelectedIds() || [];
+                if (selectedIds.length > 0) {
+                  const deletedFeatures = selectedIds
+                    .map((id) => draw?.get(id))
+                    .filter((feature): feature is GeoJSON.Feature => !!feature);
+                  draw?.delete(selectedIds);
+                  if (deletedFeatures.length > 0) {
+                    map?.fire("draw.delete", {
+                      features: deletedFeatures,
+                    });
+                  }
                 }
-              }
-            }}
-            label="Delete"
-          >
-            <Trash2 className="size-4" />
-          </ControlButton>
-        </ControlGroup>
+              }}
+              label="Delete"
+            >
+              <Trash2 className="size-4" />
+            </ControlButton>
+          </ControlGroup>
+        )}
+        {showZoom && (
+          <ControlGroup>
+            <ControlButton onClick={handleZoomIn} label="Zoom in">
+              <Plus className="size-4" />
+            </ControlButton>
+            <ControlButton onClick={handleZoomOut} label="Zoom out">
+              <Minus className="size-4" />
+            </ControlButton>
+          </ControlGroup>
+        )}
+        {showCompass && (
+          <ControlGroup>
+            <CompassButton onClick={handleResetBearing} />
+          </ControlGroup>
+        )}
+        {showLocate && (
+          <ControlGroup>
+            <ControlButton
+              onClick={handleLocate}
+              label="Find my location"
+              disabled={waitingForLocation}
+            >
+              {waitingForLocation ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Locate className="size-4" />
+              )}
+            </ControlButton>
+          </ControlGroup>
+        )}
+        {showFullscreen && (
+          <ControlGroup>
+            <ControlButton onClick={handleFullscreen} label="Toggle fullscreen">
+              <Maximize className="size-4" />
+            </ControlButton>
+          </ControlGroup>
+        )}
+      </div>
+      {cursorHint.isVisible && (
+        <div
+          className="pointer-events-none absolute z-20 rounded-md bg-foreground px-2 py-1 text-xs text-background shadow-sm"
+          style={{
+            left: cursorHint.x,
+            top: cursorHint.y,
+          }}
+        >
+          {cursorHint.text}
+        </div>
       )}
-      {showZoom && (
-        <ControlGroup>
-          <ControlButton onClick={handleZoomIn} label="Zoom in">
-            <Plus className="size-4" />
-          </ControlButton>
-          <ControlButton onClick={handleZoomOut} label="Zoom out">
-            <Minus className="size-4" />
-          </ControlButton>
-        </ControlGroup>
-      )}
-      {showCompass && (
-        <ControlGroup>
-          <CompassButton onClick={handleResetBearing} />
-        </ControlGroup>
-      )}
-      {showLocate && (
-        <ControlGroup>
-          <ControlButton
-            onClick={handleLocate}
-            label="Find my location"
-            disabled={waitingForLocation}
-          >
-            {waitingForLocation ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Locate className="size-4" />
-            )}
-          </ControlButton>
-        </ControlGroup>
-      )}
-      {showFullscreen && (
-        <ControlGroup>
-          <ControlButton onClick={handleFullscreen} label="Toggle fullscreen">
-            <Maximize className="size-4" />
-          </ControlButton>
-        </ControlGroup>
-      )}
-    </div>
+    </>
   );
 }
 
