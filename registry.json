@@ -15,6 +15,11 @@
           "path": "src/registry/map.tsx",
           "type": "registry:ui",
           "target": "components/ui/map.tsx"
+        },
+        {
+          "path": "lib/map-draw",
+          "type": "registry:lib",
+          "target": "lib/map-draw"
         }
       ],
       "css": {
