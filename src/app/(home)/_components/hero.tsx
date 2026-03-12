@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
-const installCommand = "npx shadcn@latest add https://naraku-mapcn-expand.vercel.app/r/map.json";
+const installCommand = "npx shadcn@latest add https://mapcn-expand.vercel.app/r/map.json";
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
