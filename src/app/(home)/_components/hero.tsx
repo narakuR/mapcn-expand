@@ -57,7 +57,7 @@ export function Hero() {
           Built on MapLibre. Styled with Tailwind.
         </p>
 
-        <div className="mt-8 animate-fade-up delay-300 w-full max-w-lg">
+        <div className="mt-8 animate-fade-up delay-300 w-full max-w-xl">
           <div className="bg-card border border-border rounded-lg shadow-xs overflow-hidden">
             <div className="flex items-center gap-1.5 px-3 py-2 border-b border-border/50">
               <span className="size-2 rounded-full bg-foreground/20" />

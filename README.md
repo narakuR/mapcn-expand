@@ -5,7 +5,7 @@
 
 <p align="center">
   <a href="https://naraku-mapcn-expand.vercel.app/">Get Started</a> ·
-  <a href="https://naraku-mapcn-expand.vercel.app/installation">Installation</a> ·
+  <a href="https://naraku-mapcn-expand.vercel.app/docs/installation">Installation</a> ·
   <a href="https://naraku-mapcn-expand.vercel.app/docs/basic-map">Components</a>
 </p>
 
