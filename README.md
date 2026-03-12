@@ -9,6 +9,9 @@
   <a href="https://naraku-mapcn-expand.vercel.app/docs/basic-map">Components</a>
 </p>
 
+# mapcn-expand
+
+An extended shadcn registry based on [mapcn](https://github.com/AnmolSaini16/mapcn), with additional features and modifications by narakuR.
 
 ## Features
 
@@ -28,6 +31,12 @@ This project uses [CARTO Basemaps](https://docs.carto.com/faqs/carto-basemaps) w
 - **Commercial use**: Requires a CARTO Enterprise license. [Request a demo](https://carto.com/request-live-demo) for pricing details.
 - **Non-commercial use**: Free for CARTO grantees under their [basemap terms](https://carto.com/legal/bmap).
 - **Alternative**: You can switch to [OpenStreetMap](https://www.openstreetmap.org/) tiles or any other MapLibre-compatible tile provider.
+
+## Attribution
+
+This project is derived from [mapcn](https://github.com/AnmolSaini16/mapcn), originally created by Anmoldeep Singh and licensed under the MIT License.
+
+`mapcn-expand` includes additional modifications and new features by narakuR.
 
 ## License
 
