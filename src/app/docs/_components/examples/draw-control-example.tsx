@@ -411,8 +411,8 @@ export function DrawControlExample() {
       <MapComponent center={[-73.9857, 40.7484]} zoom={12}>
         <MapControls
           position="bottom-right"
-          showZoom
           showDraw
+          showZoom={false}
           onDraw={handleDraw}
           features={features}
         />
