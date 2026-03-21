@@ -24,6 +24,7 @@ const anatomyCode = `<Map>
 
   <MapPopup longitude={...} latitude={...} />
   <MapControls />
+  <MapAgent endpoint="/api/map-agent" />
   <MapRoute coordinates={...} />
   <MapClusterLayer data={...} />
 </Map>`;
@@ -43,6 +44,7 @@ export default function ApiReferencePage() {
         { title: "useMap", slug: "usemap" },
         { title: "MapControls", slug: "mapcontrols" },
         { title: "MapControls Draw", slug: "mapcontrols-draw" },
+        { title: "MapAgent", slug: "mapagent" },
         { title: "MapMarker", slug: "mapmarker" },
         { title: "MarkerContent", slug: "markercontent" },
         { title: "MarkerPopup", slug: "markerpopup" },
@@ -234,6 +236,69 @@ export default function ApiReferencePage() {
               name: "features",
               type: "GeoJSON.Feature[]",
               description: "Initial features loaded into the draw store.",
+            },
+          ]}
+        />
+      </DocsSection>
+
+      <DocsSection title="MapAgent">
+        <p>
+          Renders a lightweight assistant panel inside <DocsCode>Map</DocsCode>
+          and sends natural-language requests to a server endpoint that returns
+          a <DocsCode>fly_to</DocsCode> command.
+        </p>
+        <p>
+          Keep model names, base URLs, and provider tokens on the server. The
+          client component only needs the route location and the provider
+          profile name.
+        </p>
+        <DocsPropTable
+          props={[
+            {
+              name: "endpoint",
+              type: "string",
+              default: "—",
+              description:
+                "Required API route for assistant requests, for example /api/map-agent.",
+            },
+            {
+              name: "provider",
+              type: '"openai" | "anthropic"',
+              default: '"openai"',
+              description:
+                "Chooses which server-side provider profile should handle the request.",
+            },
+            {
+              name: "autoRun",
+              type: "boolean",
+              default: "false",
+              description:
+                "Automatically sends the initial prompt after the map is ready.",
+            },
+            {
+              name: "defaultPrompt",
+              type: "string",
+              default: '"Fly to New York with a scenic city view"',
+              description:
+                "Initial prompt used when autoRun is enabled and the starting value shown in the input.",
+            },
+            {
+              name: "placeholder",
+              type: "string",
+              default: '"Try: Fly to New York with a scenic city view"',
+              description: "Placeholder text displayed inside the assistant input.",
+            },
+            {
+              name: "className",
+              type: "string",
+              description:
+                "Additional classes applied to the assistant panel container.",
+            },
+            {
+              name: "position",
+              type: '"top-left" | "top-right" | "bottom-left" | "bottom-right"',
+              default: '"top-left"',
+              description: "Controls where the assistant panel appears inside the map.",
             },
           ]}
         />
