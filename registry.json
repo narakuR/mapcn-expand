@@ -7,7 +7,7 @@
       "name": "map",
       "type": "registry:ui",
       "title": "Map",
-      "description": "A MapLibre-powered map component with markers, popups, tooltips, routes, and controls.",
+      "description": "A MapLibre-powered map component with markers, popups, tooltips, routes, controls, draw tools, and a client-side map-agent runtime.",
       "dependencies": ["maplibre-gl", "lucide-react", "@mapbox/mapbox-gl-draw", "@turf/turf"],
       "devDependencies": ["@types/mapbox__mapbox-gl-draw"],
       "registryDependencies": [],
@@ -51,6 +51,31 @@
           "path": "src/lib/map-draw/utils/drag_pan.ts",
           "type": "registry:lib",
           "target": "lib/map-draw/utils/drag_pan.ts"
+        },
+        {
+          "path": "src/lib/map-agent/index.ts",
+          "type": "registry:lib",
+          "target": "lib/map-agent/index.ts"
+        },
+        {
+          "path": "src/lib/map-agent/execute.ts",
+          "type": "registry:lib",
+          "target": "lib/map-agent/execute.ts"
+        },
+        {
+          "path": "src/lib/map-agent/schema.ts",
+          "type": "registry:lib",
+          "target": "lib/map-agent/schema.ts"
+        },
+        {
+          "path": "src/lib/map-agent/types.ts",
+          "type": "registry:lib",
+          "target": "lib/map-agent/types.ts"
+        },
+        {
+          "path": "src/lib/map-agent/use-map-agent-runtime.ts",
+          "type": "registry:lib",
+          "target": "lib/map-agent/use-map-agent-runtime.ts"
         }
       ],
       "css": {

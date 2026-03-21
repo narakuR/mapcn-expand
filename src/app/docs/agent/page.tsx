@@ -125,6 +125,7 @@ export default async function AgentPage() {
         { title: "Props", slug: "props" },
         { title: "Environment Template", slug: "environment-template" },
         { title: "Server Route", slug: "server-route" },
+        { title: "Extending The Agent", slug: "extending-the-agent" },
       ]}
     >
       <DocsSection title="Preview">
@@ -222,6 +223,55 @@ export default async function AgentPage() {
           <DocsCode>PROVIDER_CONFIG</DocsCode> and environment variables.
         </p>
         <CodeBlock code={routeExampleCode} language="ts" />
+      </DocsSection>
+
+      <DocsSection title="Extending The Agent">
+        <p>
+          If you want the assistant to do more than{" "}
+          <DocsCode>fly_to</DocsCode>, treat the change as a full contract
+          update. The map UI, the client runtime, the server route, and the
+          public docs all need to stay in sync.
+        </p>
+        <ul>
+          <li>
+            <strong>Extend the frontend command contract:</strong> update{" "}
+            <DocsCode>src/lib/map-agent/types.ts</DocsCode>,{" "}
+            <DocsCode>src/lib/map-agent/schema.ts</DocsCode>, and{" "}
+            <DocsCode>src/lib/map-agent/execute.ts</DocsCode> so the new command
+            can be validated and executed on the client.
+          </li>
+          <li>
+            <strong>Update the assistant UI only if the public API changes:</strong>{" "}
+            if a new feature needs extra props or different panel behavior,
+            update <DocsCode>src/registry/map.tsx</DocsCode> and keep{" "}
+            <DocsCode>MapAgentProps</DocsCode> aligned with the actual request
+            shape.
+          </li>
+          <li>
+            <strong>Expand the server route tool set:</strong> update{" "}
+            <DocsCode>src/app/api/map-agent/route.ts</DocsCode> to add the new
+            tool schema, bind the tool, and normalize the returned payload to
+            the same command shape expected by the frontend runtime.
+          </li>
+          <li>
+            <strong>Sync public documentation:</strong> update this page,{" "}
+            <DocsCode>API Reference</DocsCode>, and any installation notes if
+            the public surface or setup instructions changed.
+          </li>
+          <li>
+            <strong>Sync registry output when installable files change:</strong>{" "}
+            if you add, remove, or rename files under{" "}
+            <DocsCode>src/lib/map-agent</DocsCode> or expose new public exports,
+            update <DocsCode>registry.json</DocsCode> and rebuild the registry
+            output with <DocsCode>npm run registry:build</DocsCode>.
+          </li>
+        </ul>
+        <DocsNote>
+          A practical rule: if you add a new command such as{" "}
+          <DocsCode>draw_polygon</DocsCode>, you should expect to touch both
+          sides of the contract at the same time. Do not change only the server
+          tool or only the client executor.
+        </DocsNote>
       </DocsSection>
     </DocsLayout>
   );

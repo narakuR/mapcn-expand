@@ -61,8 +61,16 @@ export default function InstallationPage() {
         <CodeBlock code={installCommand} language="bash" />
         <p>
           This will install <DocsCode>maplibre-gl</DocsCode> and add the map
-          component to your project.
+          component, draw helpers, and the client-side{" "}
+          <DocsCode>lib/map-agent</DocsCode> runtime to your project.
         </p>
+        <DocsNote>
+          The registry package does <strong>not</strong> include any backend
+          route or LangChain server code. If you want to use{" "}
+          <DocsCode>MapAgent</DocsCode>, keep your API route in your own app and
+          only reuse the installed frontend runtime under{" "}
+          <DocsCode>lib/map-agent</DocsCode>.
+        </DocsNote>
       </DocsSection>
 
       <DocsSection title="Usage">
