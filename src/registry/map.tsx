@@ -910,7 +910,7 @@ function MapControls({
   onDraw = () => { },
   className,
   onLocate,
-  features = []
+  features = [],
 }: MapControlsProps) {
   const { map, isLoaded, resolvedTheme } = useMap();
 
