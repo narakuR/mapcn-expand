@@ -18,6 +18,7 @@ function CopyButton({ text }: { text: string }) {
 
   return (
     <button
+      type="button"
       onClick={copy}
       className="text-muted-foreground hover:text-foreground transition-colors"
     >

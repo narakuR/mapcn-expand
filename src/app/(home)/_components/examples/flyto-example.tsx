@@ -1,16 +1,16 @@
 "use client";
 
+import { Navigation } from "lucide-react";
+import { useRef } from "react";
+import { Button } from "@/components/ui/button";
 import {
-  Map,
+  Map as MapComponent,
   MapMarker,
-  MapRef,
+  type MapRef,
   MarkerContent,
   MarkerTooltip,
 } from "@/registry/map";
-import { useRef } from "react";
 import { ExampleCard } from "./example-card";
-import { Button } from "@/components/ui/button";
-import { Navigation } from "lucide-react";
 
 const destination = {
   name: "New York",
@@ -24,7 +24,7 @@ export function FlyToExample() {
 
   return (
     <ExampleCard label="Fly To" className="aspect-square" delay="delay-600">
-      <Map
+      <MapComponent
         center={destination.startCenter}
         zoom={0.5}
         ref={mapRef}
@@ -49,7 +49,7 @@ export function FlyToExample() {
             </div>
           </MarkerTooltip>
         </MapMarker>
-      </Map>
+      </MapComponent>
       <Button
         size="icon-sm"
         variant="secondary"

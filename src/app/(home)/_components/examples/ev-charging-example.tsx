@@ -1,7 +1,12 @@
 "use client";
 
-import { Map, MapMarker, MarkerContent, MarkerTooltip } from "@/registry/map";
 import { Zap } from "lucide-react";
+import {
+  Map as MapComponent,
+  MapMarker,
+  MarkerContent,
+  MarkerTooltip,
+} from "@/registry/map";
 import { ExampleCard } from "./example-card";
 
 export function EVChargingExample() {
@@ -11,7 +16,7 @@ export function EVChargingExample() {
       className="aspect-square"
       delay="delay-700"
     >
-      <Map center={[-122.425, 37.777]} zoom={11.5}>
+      <MapComponent center={[-122.425, 37.777]} zoom={11.5}>
         <MapMarker longitude={-122.4194} latitude={37.7749}>
           <MarkerContent>
             <div className="bg-emerald-500 rounded-full p-1.5 shadow-lg shadow-emerald-500/30">
@@ -82,7 +87,7 @@ export function EVChargingExample() {
             </div>
           </MarkerTooltip>
         </MapMarker>
-      </Map>
+      </MapComponent>
     </ExampleCard>
   );
 }

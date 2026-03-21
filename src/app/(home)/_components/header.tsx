@@ -1,15 +1,9 @@
-import { Heart } from "lucide-react";
 import { CommandSearch } from "@/components/command-search";
 import { GitHubButton } from "@/components/github-button";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import { cn } from "@/lib/utils";
 
 export function Header({ className }: { className?: string }) {

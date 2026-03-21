@@ -1,13 +1,13 @@
+import { Clock, ExternalLink, Navigation, Star } from "lucide-react";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
 import {
-  Map,
+  Map as MapComponent,
   MapMarker,
   MarkerContent,
   MarkerLabel,
   MarkerPopup,
 } from "@/registry/map";
-import { Button } from "@/components/ui/button";
-import { Star, Navigation, Clock, ExternalLink } from "lucide-react";
-import Image from "next/image";
 
 const places = [
   {
@@ -54,7 +54,7 @@ const places = [
 export function PopupExample() {
   return (
     <div className="h-[500px] w-full">
-      <Map center={[-73.98, 40.74]} zoom={11}>
+      <MapComponent center={[-73.98, 40.74]} zoom={11}>
         {places.map((place) => (
           <MapMarker key={place.id} longitude={place.lng} latitude={place.lat}>
             <MarkerContent>
@@ -105,7 +105,7 @@ export function PopupExample() {
             </MarkerPopup>
           </MapMarker>
         ))}
-      </Map>
+      </MapComponent>
     </div>
   );
 }

@@ -1,7 +1,12 @@
 "use client";
 
-import { Map, MapMarker, MarkerContent, MarkerTooltip } from "@/registry/map";
 import { TrendingUp } from "lucide-react";
+import {
+  Map as MapComponent,
+  MapMarker,
+  MarkerContent,
+  MarkerTooltip,
+} from "@/registry/map";
 import { ExampleCard } from "./example-card";
 
 const analyticsData = [
@@ -53,7 +58,7 @@ export function AnalyticsExample() {
         </div>
       </div>
 
-      <Map center={[0, 30]}>
+      <MapComponent center={[0, 30]}>
         {analyticsData.map((loc) => (
           <MapMarker key={loc.city} longitude={loc.lng} latitude={loc.lat}>
             <MarkerContent>
@@ -92,7 +97,7 @@ export function AnalyticsExample() {
             </MarkerTooltip>
           </MapMarker>
         ))}
-      </Map>
+      </MapComponent>
     </ExampleCard>
   );
 }

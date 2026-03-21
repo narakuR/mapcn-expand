@@ -1,16 +1,17 @@
 import {
-  Map,
   BookOpen,
-  Code,
+  Bot,
   Braces,
-  MapPin,
-  Pencil,
-  MessageSquare,
-  Route,
-  Wrench,
-  Settings,
+  Code,
   Layers,
-  LucideIcon,
+  type LucideIcon,
+  MapIcon,
+  MapPin,
+  MessageSquare,
+  Pencil,
+  Route,
+  Settings,
+  Wrench,
 } from "lucide-react";
 
 export interface NavItem {
@@ -36,13 +37,14 @@ export const docsNavigation: NavGroup[] = [
   {
     title: "Components",
     items: [
-      { title: "Map", href: "/docs/basic-map", icon: Map },
+      { title: "Map", href: "/docs/basic-map", icon: MapIcon },
       { title: "Controls", href: "/docs/controls", icon: Settings },
       { title: "Draw Control", href: "/docs/draw-control", icon: Pencil },
       { title: "Markers", href: "/docs/markers", icon: MapPin },
       { title: "Popups", href: "/docs/popups", icon: MessageSquare },
       { title: "Routes", href: "/docs/routes", icon: Route },
       { title: "Clusters", href: "/docs/clusters", icon: Layers },
+      { title: "Agent", href: "/docs/agent", icon: Bot },
       { title: "Advanced", href: "/docs/advanced-usage", icon: Wrench },
     ],
   },

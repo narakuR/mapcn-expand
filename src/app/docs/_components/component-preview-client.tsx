@@ -24,6 +24,7 @@ export function ComponentPreviewClient({
       <div className="flex items-center justify-between border-b bg-muted/30 px-2 h-12">
         <div className="flex gap-2">
           <button
+            type="button"
             onClick={() => setActiveTab("preview")}
             className={cn(
               "px-2 py-1 text-xs font-medium rounded transition-colors",
@@ -35,6 +36,7 @@ export function ComponentPreviewClient({
             Preview
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab("code")}
             className={cn(
               "px-3 py-1 text-xs font-medium rounded transition-colors",
@@ -56,6 +58,7 @@ export function ComponentPreviewClient({
         ) : (
           <div
             className="h-full p-4 overflow-auto text-sm bg-muted/20 [&_pre]:bg-transparent! [&_code]:bg-transparent!"
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
             dangerouslySetInnerHTML={{ __html: highlightedCode }}
           />
         )}

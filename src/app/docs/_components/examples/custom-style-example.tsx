@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Map, type MapRef } from "@/registry/map";
+import { Map as MapComponent, type MapRef } from "@/registry/map";
 
 const styles = {
   default: undefined,
@@ -23,7 +23,7 @@ export function CustomStyleExample() {
 
   return (
     <div className="h-[400px] relative w-full">
-      <Map
+      <MapComponent
         ref={mapRef}
         center={[-0.1276, 51.5074]}
         zoom={15}

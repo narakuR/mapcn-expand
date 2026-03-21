@@ -1,9 +1,9 @@
 import {
-  Map,
+  Map as MapComponent,
   MapMarker,
+  MapRoute,
   MarkerContent,
   MarkerTooltip,
-  MapRoute,
 } from "@/registry/map";
 
 const route = [
@@ -23,7 +23,7 @@ const stops = [
 export function RouteExample() {
   return (
     <div className="h-[400px] w-full">
-      <Map center={[-73.98, 40.75]} zoom={11.2}>
+      <MapComponent center={[-73.98, 40.75]} zoom={11.2}>
         <MapRoute coordinates={route} color="#3b82f6" width={4} opacity={0.8} />
 
         {stops.map((stop, index) => (
@@ -36,7 +36,7 @@ export function RouteExample() {
             <MarkerTooltip>{stop.name}</MarkerTooltip>
           </MapMarker>
         ))}
-      </Map>
+      </MapComponent>
     </div>
   );
 }

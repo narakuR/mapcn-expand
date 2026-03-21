@@ -1,5 +1,5 @@
 import {
-  Map,
+  Map as MapComponent,
   MapMarker,
   MarkerContent,
   MarkerPopup,
@@ -25,7 +25,7 @@ const locations = [
 export function MarkersExample() {
   return (
     <div className="h-[400px] w-full">
-      <Map center={[-73.98, 40.76]} zoom={12}>
+      <MapComponent center={[-73.98, 40.76]} zoom={12}>
         {locations.map((location) => (
           <MapMarker
             key={location.id}
@@ -46,7 +46,7 @@ export function MarkersExample() {
             </MarkerPopup>
           </MapMarker>
         ))}
-      </Map>
+      </MapComponent>
     </div>
   );
 }

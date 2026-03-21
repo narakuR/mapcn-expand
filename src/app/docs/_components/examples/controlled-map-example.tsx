@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Map, type MapViewport } from "@/registry/map";
+import { Map as MapComponent, type MapViewport } from "@/registry/map";
 
 export function ControlledMapExample() {
   const [viewport, setViewport] = useState<MapViewport>({
@@ -13,7 +13,7 @@ export function ControlledMapExample() {
 
   return (
     <div className="h-[400px] relative w-full">
-      <Map viewport={viewport} onViewportChange={setViewport} />
+      <MapComponent viewport={viewport} onViewportChange={setViewport} />
       <div className="absolute top-2 left-2 z-10 flex flex-wrap gap-x-3 gap-y-1 text-xs font-mono bg-background/80 backdrop-blur px-2 py-1.5 rounded border">
         <span>
           <span className="text-muted-foreground">lng:</span>{" "}

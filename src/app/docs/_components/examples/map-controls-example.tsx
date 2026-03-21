@@ -1,9 +1,9 @@
-import { Map, MapControls } from "@/registry/map";
+import { Map as MapComponent, MapControls } from "@/registry/map";
 
 export function MapControlsExample() {
   return (
     <div className="h-[400px] w-full">
-      <Map center={[2.3522, 48.8566]} zoom={11}>
+      <MapComponent center={[2.3522, 48.8566]} zoom={11}>
         <MapControls
           position="bottom-right"
           showZoom
@@ -11,7 +11,7 @@ export function MapControlsExample() {
           showLocate
           showFullscreen
         />
-      </Map>
+      </MapComponent>
     </div>
   );
 }

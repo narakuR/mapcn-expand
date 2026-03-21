@@ -1,7 +1,12 @@
 "use client";
 
-import { Map, MapRoute, MapMarker, MarkerContent } from "@/registry/map";
-import { Bike, Flame, Clock, Route } from "lucide-react";
+import { Bike, Clock, Flame, Route } from "lucide-react";
+import {
+  Map as MapComponent,
+  MapMarker,
+  MapRoute,
+  MarkerContent,
+} from "@/registry/map";
 import { ExampleCard } from "./example-card";
 
 // Central Park cycling route
@@ -62,7 +67,7 @@ export function TrailExample() {
         </div>
       </div>
 
-      <Map center={[-73.97, 40.782]} zoom={11.8}>
+      <MapComponent center={[-73.97, 40.782]} zoom={11.8}>
         <MapRoute
           coordinates={trailCoordinates}
           color="#10b981"
@@ -81,7 +86,7 @@ export function TrailExample() {
             <div className="size-3 rounded-full bg-red-500 border-2 border-white shadow-lg" />
           </MarkerContent>
         </MapMarker>
-      </Map>
+      </MapComponent>
     </ExampleCard>
   );
 }

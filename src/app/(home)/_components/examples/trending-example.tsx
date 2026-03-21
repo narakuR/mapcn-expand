@@ -1,13 +1,18 @@
 "use client";
 
-import { Map, MapMarker, MarkerContent, MarkerTooltip } from "@/registry/map";
 import { Flame, TrendingUp } from "lucide-react";
+import {
+  Map as MapComponent,
+  MapMarker,
+  MarkerContent,
+  MarkerTooltip,
+} from "@/registry/map";
 import { ExampleCard } from "./example-card";
 
 export function TrendingExample() {
   return (
     <ExampleCard label="Trending" className="aspect-square" delay="delay-800">
-      <Map center={[-73.99, 40.735]} zoom={10}>
+      <MapComponent center={[-73.99, 40.735]} zoom={10}>
         <MapMarker longitude={-73.9857} latitude={40.7484}>
           <MarkerContent>
             <div className="relative flex items-center justify-center">
@@ -66,7 +71,7 @@ export function TrendingExample() {
             </div>
           </MarkerTooltip>
         </MapMarker>
-      </Map>
+      </MapComponent>
     </ExampleCard>
   );
 }

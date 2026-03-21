@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { Check, Copy } from "lucide-react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface CopyButtonProps {
@@ -20,10 +20,11 @@ export function CopyButton({ text, className }: CopyButtonProps) {
 
   return (
     <button
+      type="button"
       onClick={copy}
       className={cn(
         "p-1.5 rounded hover:bg-muted transition-colors",
-        className
+        className,
       )}
       aria-label="Copy code"
     >

@@ -1,15 +1,15 @@
 "use client";
 
+import { Clock, Loader2, Route } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
-  Map,
+  Map as MapComponent,
   MapMarker,
-  MarkerContent,
   MapRoute,
+  MarkerContent,
   MarkerLabel,
 } from "@/registry/map";
-import { Loader2, Clock, Route } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 const start = { name: "Amsterdam", lng: 4.9041, lat: 52.3676 };
 const end = { name: "Rotterdam", lng: 4.4777, lat: 51.9244 };
@@ -42,7 +42,7 @@ export function OsrmRouteExample() {
     async function fetchRoutes() {
       try {
         const response = await fetch(
-          `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson&alternatives=true`
+          `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson&alternatives=true`,
         );
         const data = await response.json();
 
@@ -56,7 +56,7 @@ export function OsrmRouteExample() {
               coordinates: route.geometry.coordinates,
               duration: route.duration,
               distance: route.distance,
-            })
+            }),
           );
           setRoutes(routeData);
         }
@@ -81,7 +81,7 @@ export function OsrmRouteExample() {
 
   return (
     <div className="h-[500px] w-full relative">
-      <Map center={[4.69, 52.14]} zoom={8.5}>
+      <MapComponent center={[4.69, 52.14]} zoom={8.5}>
         {sortedRoutes.map(({ route, index }) => {
           const isSelected = index === selectedIndex;
           return (
@@ -109,7 +109,7 @@ export function OsrmRouteExample() {
             <MarkerLabel position="bottom">{end.name}</MarkerLabel>
           </MarkerContent>
         </MapMarker>
-      </Map>
+      </MapComponent>
 
       {routes.length > 0 && (
         <div className="absolute top-3 left-3 flex flex-col gap-2">
@@ -118,7 +118,7 @@ export function OsrmRouteExample() {
             const isFastest = index === 0;
             return (
               <Button
-                key={index}
+                key={route.coordinates.toString()}
                 variant={isActive ? "default" : "secondary"}
                 size="sm"
                 onClick={() => setSelectedIndex(index)}

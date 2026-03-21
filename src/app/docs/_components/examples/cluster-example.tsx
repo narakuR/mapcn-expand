@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Map, MapClusterLayer, MapPopup, MapControls } from "@/registry/map";
+import {
+  MapClusterLayer,
+  Map as MapComponent,
+  MapControls,
+  MapPopup,
+} from "@/registry/map";
 
 interface EarthquakeProperties {
   mag: number;
@@ -17,7 +22,7 @@ export default function ClusterExample() {
 
   return (
     <div className="h-[400px] w-full">
-      <Map center={[-103.59, 40.66]} zoom={3.4} fadeDuration={0}>
+      <MapComponent center={[-103.59, 40.66]} zoom={3.4} fadeDuration={0}>
         <MapClusterLayer<EarthquakeProperties>
           data="https://maplibre.org/maplibre-gl-js/docs/assets/earthquakes.geojson"
           clusterRadius={50}
@@ -55,7 +60,7 @@ export default function ClusterExample() {
         )}
 
         <MapControls />
-      </Map>
+      </MapComponent>
     </div>
   );
 }

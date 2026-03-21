@@ -1,15 +1,15 @@
 "use client";
 
+import { Truck } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
-  Map,
+  Map as MapComponent,
   MapMarker,
+  MapRoute,
   MarkerContent,
   MarkerLabel,
   MarkerTooltip,
-  MapRoute,
 } from "@/registry/map";
-import { Truck } from "lucide-react";
 import { ExampleCard } from "./example-card";
 
 const store = { lng: -0.14, lat: 51.5154 };
@@ -18,14 +18,14 @@ const home = { lng: -0.07, lat: 51.51 };
 export function DeliveryExample() {
   const [route, setRoute] = useState<[number, number][]>([]);
   const [truckPosition, setTruckPosition] = useState<[number, number] | null>(
-    null
+    null,
   );
 
   useEffect(() => {
     async function fetchRoute() {
       try {
         const response = await fetch(
-          `https://router.project-osrm.org/route/v1/driving/${store.lng},${store.lat};${home.lng},${home.lat}?overview=full&geometries=geojson`
+          `https://router.project-osrm.org/route/v1/driving/${store.lng},${store.lat};${home.lng},${home.lat}?overview=full&geometries=geojson`,
         );
         const data = await response.json();
 
@@ -50,7 +50,7 @@ export function DeliveryExample() {
       className="aspect-square sm:col-span-2 sm:aspect-video lg:aspect-auto"
       delay="delay-900"
     >
-      <Map center={[-0.105, 51.511]} zoom={12.4}>
+      <MapComponent center={[-0.105, 51.511]} zoom={12.4}>
         {route.length > 0 && (
           <MapRoute coordinates={route} width={4} color="#4285F4" />
         )}
@@ -76,7 +76,7 @@ export function DeliveryExample() {
             <MarkerLabel>Home</MarkerLabel>
           </MarkerContent>
         </MapMarker>
-      </Map>
+      </MapComponent>
     </ExampleCard>
   );
 }

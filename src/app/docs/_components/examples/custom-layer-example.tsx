@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { Map, MapControls, useMap } from "@/registry/map";
-import { Button } from "@/components/ui/button";
 import { Layers, X } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Map as MapComponent, MapControls, useMap } from "@/registry/map";
 
 const geojsonData = {
   type: "FeatureCollection" as const,
@@ -125,7 +125,7 @@ function CustomLayer() {
       map.off("mouseleave", "parks-fill", handleMouseLeave);
       map.off("mousemove", "parks-fill", handleMouseMove);
     };
-  }, [map, isLoaded, isLayerVisible]);
+  }, [map, isLoaded, addLayers]);
 
   const toggleLayer = () => {
     if (!map) return;
@@ -165,10 +165,10 @@ function CustomLayer() {
 export function CustomLayerExample() {
   return (
     <div className="h-[400px] w-full">
-      <Map center={[-73.97, 40.78]} zoom={11.8}>
+      <MapComponent center={[-73.97, 40.78]} zoom={11.8}>
         <MapControls />
         <CustomLayer />
-      </Map>
+      </MapComponent>
     </div>
   );
 }

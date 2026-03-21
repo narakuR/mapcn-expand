@@ -1,8 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { Map, MapMarker, MarkerContent, MarkerPopup } from "@/registry/map";
 import { MapPin } from "lucide-react";
+import { useState } from "react";
+import {
+  Map as MapComponent,
+  MapMarker,
+  MarkerContent,
+  MarkerPopup,
+} from "@/registry/map";
 
 export function DraggableMarkerExample() {
   const [draggableMarker, setDraggableMarker] = useState({
@@ -12,7 +17,7 @@ export function DraggableMarkerExample() {
 
   return (
     <div className="h-[400px] w-full">
-      <Map center={[-73.98, 40.75]} zoom={12}>
+      <MapComponent center={[-73.98, 40.75]} zoom={12}>
         <MapMarker
           draggable
           longitude={draggableMarker.lng}
@@ -39,7 +44,7 @@ export function DraggableMarkerExample() {
             </div>
           </MarkerPopup>
         </MapMarker>
-      </Map>
+      </MapComponent>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useId } from "react";
-import { Map, MapPopup, useMap } from "@/registry/map";
+import { useEffect, useId, useState } from "react";
+import { Map as MapComponent, MapPopup, useMap } from "@/registry/map";
 
 // Generate random points around NYC
 function generateRandomPoints(count: number) {
@@ -49,7 +49,7 @@ function MarkersLayer() {
   const sourceId = `markers-source-${id}`;
   const layerId = `markers-layer-${id}`;
   const [selectedPoint, setSelectedPoint] = useState<SelectedPoint | null>(
-    null
+    null,
   );
 
   useEffect(() => {
@@ -76,14 +76,14 @@ function MarkersLayer() {
     const handleClick = (
       e: maplibregl.MapMouseEvent & {
         features?: maplibregl.MapGeoJSONFeature[];
-      }
+      },
     ) => {
       if (!e.features?.length) return;
 
       const feature = e.features[0];
       const coords = (feature.geometry as GeoJSON.Point).coordinates as [
         number,
-        number
+        number,
       ];
 
       setSelectedPoint({
@@ -147,9 +147,9 @@ function MarkersLayer() {
 export function LayerMarkersExample() {
   return (
     <div className="h-[400px] w-full">
-      <Map center={[-73.98, 40.75]} zoom={11}>
+      <MapComponent center={[-73.98, 40.75]} zoom={11}>
         <MarkersLayer />
-      </Map>
+      </MapComponent>
     </div>
   );
 }

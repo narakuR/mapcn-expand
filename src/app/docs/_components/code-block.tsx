@@ -23,7 +23,8 @@ export async function CodeBlock({
       )}
       <div
         className="p-4 overflow-auto text-sm bg-muted/20 [&_pre]:bg-transparent! [&_code]:bg-transparent!"
-        dangerouslySetInnerHTML={{ __html: highlighted }}
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+        dangerouslySetInnerHTML={{ __html: highlighted, }}
       />
     </div>
   );
