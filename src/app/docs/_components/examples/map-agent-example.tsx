@@ -1,33 +1,20 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import {
-  executeMapCommand,
-  parseMapCommand,
-  useMapAgentRuntime,
-} from "@/lib/map-agent";
-import { Map as MapComponent, MapControls, type MapRef } from "@/registry/map";
+import { MapAgent, Map as MapComponent, MapControls } from "@/registry/map";
 
 export function MapAgentExample() {
-  const mapRef = useRef<MapRef>(null);
-  const runtime = useMapAgentRuntime(mapRef);
-
-  useEffect(() => {
-    if (!runtime) return;
-    const command = parseMapCommand({
-      type: "fly_to",
-      center: [121.4737, 31.2304],
-      zoom: 12,
-      duration: 2000,
-    });
-
-    executeMapCommand(runtime, command);
-  }, [runtime]);
-
   return (
-    <div className="h-[500px] w-full">
-      <MapComponent ref={mapRef}>
-        <MapControls position="top-right" showDraw showZoom={false} />
+    <div className="h-[500px] w-full overflow-hidden rounded-xl border">
+      <MapComponent>
+        <MapAgent
+          provider="openai"
+          endpoint="http://localhost:3000/api/map-agent"
+          model="deepseek-chat"
+          baseUrl="https://api.deepseek.com"
+          token="sk-2be78add8479403284eab622d1ae4d5c"
+          // defaultPrompt="Fly to downtown Shanghai with a city-level zoom."
+          placeholder="Try: Fly to New York with a scenic city view"
+        />
       </MapComponent>
     </div>
   );

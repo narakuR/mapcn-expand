@@ -19,6 +19,7 @@ import {
   Minus,
   Pentagon,
   Plus,
+  SendHorizonal,
   Square,
   Trash2,
   Waypoints,
@@ -26,6 +27,7 @@ import {
 } from "lucide-react";
 import {
   createContext,
+  type FormEvent,
   forwardRef,
   type ReactNode,
   useCallback,
@@ -39,6 +41,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
+import { executeMapCommand, parseMapCommand } from "@/lib/map-agent";
 import { cn } from "@/lib/utils";
 
 const defaultStyles = {
@@ -763,11 +766,32 @@ type MapControlsProps = {
   features?: GeoJSON.Feature[];
 };
 
+type MapAgentProps = {
+  endpoint: string;
+  provider?: "openai" | "anthropic";
+  model?: string;
+  baseUrl?: string;
+  token?: string;
+  debug?: boolean;
+  autoRun?: boolean;
+  defaultPrompt?: string;
+  placeholder?: string;
+  className?: string;
+  position?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+};
+
 const positionClasses = {
   "top-left": "top-2 left-2",
   "top-right": "top-2 right-2",
   "bottom-left": "bottom-2 left-2",
   "bottom-right": "bottom-10 right-2",
+};
+
+const mapAgentPositionClasses = {
+  "top-left": "top-3 left-3",
+  "top-right": "top-3 right-3",
+  "bottom-left": "bottom-3 left-3",
+  "bottom-right": "bottom-3 right-3",
 };
 
 const DRAW_THEME_DARK = {
@@ -869,6 +893,139 @@ function ControlGroup({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col rounded-md border border-border bg-background shadow-sm overflow-hidden [&>button:not(:last-child)]:border-b [&>button:not(:last-child)]:border-border">
       {children}
+    </div>
+  );
+}
+
+function MapAgent({
+  endpoint,
+  provider = "openai",
+  model = "gpt-4.5-mini",
+  baseUrl = "https://api.openai.com/v1",
+  token = process.env.OPENAI_API_KEY,
+  autoRun = false,
+  defaultPrompt = "Fly to New York with a scenic city view",
+  placeholder = "Try: Fly to New York with a scenic city view",
+  className,
+  position = "top-left",
+}: MapAgentProps) {
+  const { map, isLoaded } = useMap();
+  const [prompt, setPrompt] = useState(defaultPrompt);
+  const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
+  const [status, setStatus] = useState("Ready for a map instruction");
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const hasAutoRunRef = useRef(false);
+
+  useEffect(() => {
+    if (!map || !isLoaded || !pendingPrompt) return;
+    let cancelled = false;
+
+    const run = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        setStatus("Assistant is planning the next map move");
+
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            provider,
+            prompt: pendingPrompt,
+            model,
+            baseUrl,
+            token,
+          }),
+        });
+
+        const payload = (await response.json()) as {
+          error?: string;
+          command?: unknown;
+          provider?: string;
+          model?: string;
+          rawContent?: unknown;
+        };
+
+        if (!response.ok) {
+          throw new Error(payload.error ?? "Map agent request failed.");
+        }
+        if (cancelled) return;
+
+        executeMapCommand({ map }, parseMapCommand(payload.command));
+        setStatus(
+          payload.model
+            ? `Executed fly_to via ${payload.provider ?? "unknown"} / ${payload.model}`
+            : "Executed fly_to command",
+        );
+      } catch (nextError) {
+        if (cancelled) return;
+        setError(nextError instanceof Error ? nextError.message : "Request failed");
+        setStatus("Assistant request failed");
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+          setPendingPrompt(null);
+        }
+      }
+    };
+
+    void run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [map, isLoaded, pendingPrompt, endpoint, provider, model, baseUrl, token]);
+
+  useEffect(() => {
+    if (!autoRun || !map || !isLoaded || hasAutoRunRef.current) return;
+    hasAutoRunRef.current = true;
+    setPendingPrompt(defaultPrompt ?? null);
+  }, [autoRun, map, isLoaded, defaultPrompt]);
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const nextPrompt = prompt?.trim() ?? null;
+    if (!nextPrompt || isLoading) return;
+    setPendingPrompt(nextPrompt);
+  };
+
+  return (
+    <div
+      className={cn(
+        "absolute z-10 w-[min(30rem,calc(100%-1.5rem))] rounded-xl border bg-background/95 p-3 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/80",
+        mapAgentPositionClasses[position],
+        className,
+      )}
+    >
+      <form className="flex gap-2" onSubmit={handleSubmit}>
+        <input
+          value={prompt}
+          onChange={(event) => setPrompt(event.target.value)}
+          placeholder={placeholder}
+          disabled={isLoading}
+          className="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full rounded-md border bg-transparent px-3 text-sm outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
+        />
+        <button
+          type="submit"
+          disabled={isLoading || !prompt?.trim()}
+          className="bg-primary text-primary-foreground inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {isLoading ? <Loader2 className="animate-spin" /> : <SendHorizonal />}
+          Send
+        </button>
+      </form>
+      <div className="mt-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+        <span>{status}</span>
+        <span>`fly_to` only</span>
+      </div>
+      {error ? (
+        <p className="mt-2 max-h-24 overflow-auto whitespace-pre-wrap text-xs text-destructive">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -2097,6 +2254,7 @@ function MapClusterLayer<
 export {
   MapLibreMap as Map,
   useMap,
+  MapAgent,
   MapMarker,
   MarkerContent,
   MarkerPopup,
