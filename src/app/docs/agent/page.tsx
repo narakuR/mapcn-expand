@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
+import { getExampleSource } from "@/lib/get-example-source";
 import { CodeBlock } from "../_components/code-block";
+import { ComponentPreview } from "../_components/component-preview";
 import {
   DocsCode,
   DocsLayout,
@@ -16,64 +18,39 @@ export const metadata: Metadata = {
   title: "Map Agent",
 };
 
-const usageCode = `import { Map, MapAgent, MapControls } from "@/registry/map";
-
-export function AgentDemo() {
-  return (
-    <div className="h-[500px] w-full overflow-hidden rounded-xl border">
-      <Map>
-        <MapAgent
-          endpoint="/api/map-agent"
-          provider="openai"
-          model="deepseek-chat"
-          baseUrl="https://api.deepseek.com"
-          token="YOUR_TOKEN"
-          defaultPrompt="Fly to downtown Shanghai with a city-level zoom."
-        />
-        <MapControls position="top-right" showDraw showZoom={false} />
-      </Map>
-    </div>
-  );
-}`;
-
 export default async function AgentPage() {
   const routeCode = await readFile(
     join(process.cwd(), "src/app/api/map-agent/route.ts"),
     "utf8",
   );
+  const exampleSource = getExampleSource("map-agent-example.tsx");
 
   return (
     <DocsLayout
       title="Map Agent"
       description="Use a lightweight assistant panel inside the map to trigger fly_to commands with natural language."
       toc={[
-        { title: "Embedded Assistant", slug: "embedded-assistant" },
-        { title: "Usage", slug: "usage" },
+        { title: "Preview", slug: "preview" },
         { title: "Props", slug: "props" },
         { title: "Server Route", slug: "server-route" },
       ]}
     >
-      <DocsSection title="Embedded Assistant">
+      <DocsSection title="Preview">
         <p>
           <DocsCode>MapAgent</DocsCode> lives inside the map tree and talks to{" "}
           <DocsCode>/api/map-agent</DocsCode>. The current implementation focuses
           on a single map action: <DocsCode>fly_to</DocsCode>.
         </p>
-        <MapAgentExample />
-      </DocsSection>
-
-      <DocsSection title="Usage">
-        <p>
-          Mount the assistant directly inside <DocsCode>Map</DocsCode>. This keeps
-          the map state local to the registry component and avoids wiring refs in
-          page-level code.
-        </p>
         <DocsNote>
           <DocsCode>endpoint</DocsCode> is required. Pass the API route that
           accepts map-agent requests, for example{" "}
           <DocsCode>/api/map-agent</DocsCode>.
+          Provider credentials, model names, and base URLs should stay on the
+          server.
         </DocsNote>
-        <CodeBlock code={usageCode} language="tsx" />
+        <ComponentPreview code={exampleSource}>
+          <MapAgentExample />
+        </ComponentPreview>
       </DocsSection>
 
       <DocsSection title="Props">
@@ -91,28 +68,7 @@ export default async function AgentPage() {
               type: `"openai" | "anthropic"`,
               default: `"openai"`,
               description:
-                "Selects which LangChain chat model implementation the server route should use.",
-            },
-            {
-              name: "model",
-              type: "string",
-              default: "provider-specific fallback",
-              description:
-                "Overrides the model name sent to the API route for the current provider.",
-            },
-            {
-              name: "baseUrl",
-              type: "string",
-              default: "env fallback",
-              description:
-                "Optional provider endpoint override. Useful for OpenAI-compatible or Anthropic-compatible gateways.",
-            },
-            {
-              name: "token",
-              type: "string",
-              default: "env fallback",
-              description:
-                "Authentication token forwarded to the API route. Prefer environment variables over hardcoding it in client code.",
+                "Selects which server-side provider profile should handle the request.",
             },
             {
               name: "defaultPrompt",
@@ -164,7 +120,9 @@ export default async function AgentPage() {
           <DocsCode>src/app/api/map-agent/route.ts</DocsCode>. It supports both{" "}
           <DocsCode>openai</DocsCode> and <DocsCode>anthropic</DocsCode>{" "}
           providers and returns a normalized <DocsCode>fly_to</DocsCode>{" "}
-          command via tool calling.
+          command via tool calling. Provider model names, base URLs, and tokens
+          are resolved on the server through <DocsCode>PROVIDER_CONFIG</DocsCode>{" "}
+          and environment variables.
         </p>
         <CodeBlock code={routeCode} language="ts" />
       </DocsSection>

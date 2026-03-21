@@ -7,13 +7,10 @@ export function MapAgentExample() {
     <div className="h-[500px] w-full overflow-hidden rounded-xl border">
       <MapComponent>
         <MapAgent
+          endpoint="/api/map-agent"
           provider="openai"
-          endpoint="http://localhost:3000/api/map-agent"
-          model="deepseek-chat"
-          baseUrl="https://api.deepseek.com"
-          token={process.env.DEEPSEEK_API_KEY ?? ""}
-          // defaultPrompt="Fly to downtown Shanghai with a city-level zoom."
           placeholder="Try: Fly to New York with a scenic city view"
+          defaultPrompt="Fly to New York with a scenic city view"
         />
       </MapComponent>
     </div>

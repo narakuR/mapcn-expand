@@ -769,14 +769,8 @@ type MapControlsProps = {
 type MapAgentProps = {
   /** Required API endpoint that accepts map-agent requests, e.g. `/api/map-agent`. */
   endpoint: string;
-  /** Provider used by the server route to resolve the backing chat model. */
+  /** Provider used by the server route to resolve the backing chat model and credentials. */
   provider?: "openai" | "anthropic";
-  /** Optional model override sent to the server route. */
-  model?: string;
-  /** Optional provider endpoint override for OpenAI-compatible or Anthropic-compatible gateways. */
-  baseUrl?: string;
-  /** Optional auth token forwarded to the server route. Prefer environment variables when possible. */
-  token?: string;
   /** Run the initial prompt automatically after the map is ready. */
   autoRun?: boolean;
   /** Initial prompt used when autoRun is enabled. */
@@ -909,9 +903,6 @@ function ControlGroup({ children }: { children: React.ReactNode }) {
 function MapAgent({
   endpoint,
   provider = "openai",
-  model,
-  baseUrl,
-  token,
   autoRun = false,
   defaultPrompt = "Fly to New York with a scenic city view",
   placeholder = "Try: Fly to New York with a scenic city view",
@@ -944,9 +935,6 @@ function MapAgent({
           body: JSON.stringify({
             provider,
             prompt: pendingPrompt,
-            model,
-            baseUrl,
-            token,
           }),
         });
 
@@ -985,7 +973,7 @@ function MapAgent({
     return () => {
       cancelled = true;
     };
-  }, [map, isLoaded, pendingPrompt, endpoint, provider, model, baseUrl, token]);
+  }, [map, isLoaded, pendingPrompt, endpoint, provider]);
 
   useEffect(() => {
     if (!autoRun || !map || !isLoaded || hasAutoRunRef.current) return;

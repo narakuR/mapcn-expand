@@ -10,9 +10,6 @@ const DEFAULT_ANTHROPIC_MODEL = "claude-3-5-sonnet-latest";
 const requestSchema = z.object({
   prompt: z.string().min(1, "prompt is required"),
   provider: z.enum(["openai", "anthropic"]).default("openai"),
-  model: z.string().min(1).optional(),
-  baseUrl: z.url().optional(),
-  token: z.string().min(1).optional(),
 });
 
 const flyToCommandSchema = z.object({
@@ -33,26 +30,38 @@ type Provider = z.infer<typeof requestSchema>["provider"];
 const PROVIDER_CONFIG = {
   openai: {
     name: "OpenAI",
-    defaultModel: DEFAULT_OPENAI_MODEL,
-    modelEnvKeys: ["OPENAI_MAP_AGENT_MODEL", "OPENAI_MODEL"],
-    baseUrlEnvKeys: ["OPENAI_MAP_AGENT_BASE_URL", "OPENAI_BASE_URL"],
-    tokenEnvKeys: ["OPENAI_MAP_AGENT_TOKEN", "OPENAI_API_KEY"],
+    defaults: {
+      model: DEFAULT_OPENAI_MODEL,
+    },
+    env: {
+      model: ["OPENAI_MAP_AGENT_MODEL", "OPENAI_MODEL"],
+      baseUrl: ["OPENAI_MAP_AGENT_BASE_URL", "OPENAI_BASE_URL"],
+      token: ["OPENAI_MAP_AGENT_TOKEN", "OPENAI_API_KEY"],
+    },
   },
   anthropic: {
     name: "Anthropic",
-    defaultModel: DEFAULT_ANTHROPIC_MODEL,
-    modelEnvKeys: ["ANTHROPIC_MAP_AGENT_MODEL", "ANTHROPIC_MODEL"],
-    baseUrlEnvKeys: ["ANTHROPIC_MAP_AGENT_BASE_URL", "ANTHROPIC_BASE_URL"],
-    tokenEnvKeys: ["ANTHROPIC_MAP_AGENT_TOKEN", "ANTHROPIC_API_KEY"],
+    defaults: {
+      model: DEFAULT_ANTHROPIC_MODEL,
+    },
+    env: {
+      model: ["ANTHROPIC_MAP_AGENT_MODEL", "ANTHROPIC_MODEL"],
+      baseUrl: ["ANTHROPIC_MAP_AGENT_BASE_URL", "ANTHROPIC_BASE_URL"],
+      token: ["ANTHROPIC_MAP_AGENT_TOKEN", "ANTHROPIC_API_KEY"],
+    },
   },
 } as const satisfies Record<
   Provider,
   {
     name: string;
-    defaultModel: string;
-    modelEnvKeys: readonly string[];
-    baseUrlEnvKeys: readonly string[];
-    tokenEnvKeys: readonly string[];
+    defaults: {
+      model: string;
+    };
+    env: {
+      model: readonly string[];
+      baseUrl: readonly string[];
+      token: readonly string[];
+    };
   }
 >;
 
@@ -88,42 +97,36 @@ function jsonError(status: number, error: string, details?: unknown) {
 function resolveModel(provider: Provider, modelOverride?: string) {
   return (
     modelOverride ||
-    readFirstEnv(PROVIDER_CONFIG[provider].modelEnvKeys) ||
-    PROVIDER_CONFIG[provider].defaultModel
+    readFirstEnv(PROVIDER_CONFIG[provider].env.model) ||
+    PROVIDER_CONFIG[provider].defaults.model
   );
 }
 
 function resolveBaseUrl(provider: Provider, baseUrlOverride?: string) {
   return (
     baseUrlOverride ||
-    readFirstEnv(PROVIDER_CONFIG[provider].baseUrlEnvKeys) ||
+    readFirstEnv(PROVIDER_CONFIG[provider].env.baseUrl) ||
     undefined
   );
 }
 
-function resolveToken(provider: Provider, tokenOverride?: string) {
-  return (
-    tokenOverride ||
-    readFirstEnv(PROVIDER_CONFIG[provider].tokenEnvKeys) ||
-    undefined
-  );
+function resolveToken(provider: Provider) {
+  return readFirstEnv(PROVIDER_CONFIG[provider].env.token) || undefined;
 }
 
 function createBaseModel({
   provider,
   model,
   baseUrl,
-  token,
 }: {
   provider: Provider;
   model: string;
-  baseUrl?: string;
-  token?: string;
+  baseUrl?: string | undefined;
 }) {
-  const resolvedToken = resolveToken(provider, token);
+  const resolvedToken = resolveToken(provider);
   if (!resolvedToken) {
     throw new Error(
-      `Missing ${PROVIDER_CONFIG[provider].name} token. Provide token or set ${PROVIDER_CONFIG[provider].tokenEnvKeys.join(" / ")}.`,
+      `Missing ${PROVIDER_CONFIG[provider].name} token. Provide token or set ${PROVIDER_CONFIG[provider].env.token.join(" / ")}.`,
     );
   }
 
@@ -146,18 +149,15 @@ function createMapAgent({
   provider,
   model,
   baseUrl,
-  token,
 }: {
   provider: Provider;
   model: string;
-  baseUrl?: string;
-  token?: string;
+  baseUrl?: string | undefined;
 }) {
   const llm = createBaseModel({
     provider,
     model,
     baseUrl,
-    token,
   });
 
   return llm.bindTools(
@@ -209,19 +209,15 @@ export async function POST(request: Request) {
     const {
       prompt,
       provider,
-      model,
-      baseUrl,
-      token,
     } = requestSchema.parse(json);
 
-    const resolvedModel = resolveModel(provider, model);
-    const resolvedBaseUrl = resolveBaseUrl(provider, baseUrl) ?? null;
+    const resolvedModel = resolveModel(provider);
+    const resolvedBaseUrl = resolveBaseUrl(provider) ?? null;
 
     const agent = createMapAgent({
       provider,
       model: resolvedModel,
-      baseUrl,
-      token,
+      baseUrl: resolvedBaseUrl ?? undefined,
     });
     const response = await agent.invoke(buildPrompt(prompt));
     const command = extractFlyToCommand(response);
