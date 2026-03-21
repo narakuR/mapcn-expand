@@ -1,9 +1,9 @@
 "use client";
 
+import { Mountain, RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Map, useMap } from "@/registry/map";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Mountain } from "lucide-react";
+import { Map as MapComponent, useMap } from "@/registry/map";
 
 function MapController() {
   const { map, isLoaded } = useMap();
@@ -65,9 +65,9 @@ function MapController() {
 export function AdvancedUsageExample() {
   return (
     <div className="h-[400px] w-full">
-      <Map center={[-73.9857, 40.7484]} zoom={15}>
+      <MapComponent center={[-73.9857, 40.7484]} zoom={15}>
         <MapController />
-      </Map>
+      </MapComponent>
     </div>
   );
 }
