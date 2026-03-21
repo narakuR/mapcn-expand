@@ -58,7 +58,7 @@ export function ComponentPreviewClient({
         ) : (
           <div
             className="h-full p-4 overflow-auto text-sm bg-muted/20 [&_pre]:bg-transparent! [&_code]:bg-transparent!"
-            // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: for code highlighting
             dangerouslySetInnerHTML={{ __html: highlightedCode }}
           />
         )}
