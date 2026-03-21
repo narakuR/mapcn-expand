@@ -266,20 +266,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
-export async function GET() {
-  return NextResponse.json({
-    name: "map-agent",
-    methods: ["POST"],
-    providers: Object.keys(PROVIDER_CONFIG),
-    debug: "Set debug=true in POST body to inspect raw model output.",
-    requestShape: {
-      prompt: "string",
-      provider: "openai | anthropic",
-      model: "string?",
-      baseUrl: "string?",
-      token: "string?",
-      debug: "boolean?",
-    },
-  });
-}
