@@ -1,3 +1,4 @@
+export { AgentExample } from "./agent-example";
 export { AnalyticsExample } from "./analytics-example";
 export { DeliveryExample } from "./delivery-example";
 export { DrawExample } from "./draw-example";

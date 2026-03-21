@@ -1,5 +1,6 @@
 import { FlyToExample } from "./examples/flyto-example";
 import {
+  AgentExample,
   AnalyticsExample,
   DeliveryExample,
   DrawExample,
@@ -18,6 +19,7 @@ export function ExamplesGrid() {
       <TrendingExample />
       <DeliveryExample />
       <DrawExample />
+      <AgentExample />
     </div>
   );
 }

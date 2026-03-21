@@ -191,7 +191,7 @@ export function DrawExample() {
     return (
         <ExampleCard
             label="Draw"
-            className="aspect-auto h-120 sm:col-span-4"
+            className="aspect-auto h-120 sm:col-span-2 lg:col-span-2"
             delay="delay-600"
         >
             <MapComponent center={[-73.9857, 40.7484]} zoom={11.5}>
