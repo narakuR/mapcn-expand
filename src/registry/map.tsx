@@ -345,7 +345,7 @@ const MapLibreMap = forwardRef<MapRef, MapProps>(function MapLibreMap(
       isLoaded: isLoaded && isStyleLoaded,
       resolvedTheme,
     }),
-    [mapInstance, isLoaded, isStyleLoaded],
+    [mapInstance, isLoaded, isStyleLoaded, resolvedTheme],
   );
 
   return (
@@ -1125,6 +1125,10 @@ function MapControls({
         },
       },
     ];
+
+    if (map) {
+      registerDrawPointIcons(map, drawTheme);
+    }
     return showDraw && isLoaded
       ? new MapboxDraw({
         displayControlsDefault: false,
@@ -1139,7 +1143,7 @@ function MapControls({
         styles,
       })
       : null;
-  }, [showDraw, resolvedTheme, isLoaded]);
+  }, [showDraw, resolvedTheme, isLoaded, map]);
 
   useEffect(() => {
     onDrawRef.current = onDraw;
@@ -1218,9 +1222,7 @@ function MapControls({
   useEffect(() => {
     if (!map || !isLoaded || !draw) return;
     const drawControl = draw as unknown as maplibregl.IControl;
-    const drawTheme =
-      resolvedTheme === "dark" ? DRAW_THEME_DARK : DRAW_THEME_LIGHT;
-    registerDrawPointIcons(map, drawTheme);
+
     if (!isDrawControlMountedRef.current) {
       map.addControl(drawControl);
       isDrawControlMountedRef.current = true;
@@ -1276,7 +1278,7 @@ function MapControls({
       if (!isDrawControlMountedRef.current) return;
       try {
         map.removeControl(drawControl);
-      } catch (error) {
+      } catch (_error) {
         // console.warn("Draw control already removed", error);
       } finally {
         isDrawControlMountedRef.current = false;
@@ -1291,7 +1293,7 @@ function MapControls({
     handleSelectionChange,
     handleMapMouseMove,
     hideCursorHint,
-    resolvedTheme,
+    // resolvedTheme,
     updateDrawCursor,
   ]);
 
