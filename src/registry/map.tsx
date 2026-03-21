@@ -991,7 +991,7 @@ function MapAgent({
   return (
     <div
       className={cn(
-        "absolute z-10 w-[min(30rem,calc(100%-1.5rem))] rounded-xl border bg-background/95 p-3 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/80",
+        "absolute z-10 w-[min(30rem,calc(100%-1.5rem))] rounded-xl border bg-background/95 p-3 shadow-sm backdrop-blur supports-backdrop-filter:bg-background/80",
         mapAgentPositionClasses[position],
         className,
       )}
