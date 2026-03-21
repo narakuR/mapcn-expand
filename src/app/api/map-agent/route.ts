@@ -13,7 +13,6 @@ const requestSchema = z.object({
   model: z.string().min(1).optional(),
   baseUrl: z.url().optional(),
   token: z.string().min(1).optional(),
-  debug: z.boolean().optional().default(false),
 });
 
 const flyToCommandSchema = z.object({
@@ -213,31 +212,10 @@ export async function POST(request: Request) {
       model,
       baseUrl,
       token,
-      debug,
     } = requestSchema.parse(json);
 
     const resolvedModel = resolveModel(provider, model);
     const resolvedBaseUrl = resolveBaseUrl(provider, baseUrl) ?? null;
-
-    if (debug) {
-      const llm = createBaseModel({
-        provider,
-        model: resolvedModel,
-        baseUrl,
-        token,
-      });
-      const raw = await llm.invoke(buildPrompt(prompt));
-
-      return NextResponse.json({
-        debug: true,
-        provider,
-        model: resolvedModel,
-        baseUrl: resolvedBaseUrl,
-        rawContent: raw.content,
-        responseMetadata: raw.response_metadata ?? null,
-        additionalKwargs: raw.additional_kwargs ?? null,
-      });
-    }
 
     const agent = createMapAgent({
       provider,
@@ -249,7 +227,6 @@ export async function POST(request: Request) {
     const command = extractFlyToCommand(response);
 
     return NextResponse.json({
-      debug: false,
       command,
       provider,
       model: resolvedModel,

@@ -1,6 +1,6 @@
 "use client";
 
-import { MapAgent, Map as MapComponent, MapControls } from "@/registry/map";
+import { MapAgent, Map as MapComponent } from "@/registry/map";
 
 export function MapAgentExample() {
   return (

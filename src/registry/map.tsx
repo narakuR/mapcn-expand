@@ -767,16 +767,25 @@ type MapControlsProps = {
 };
 
 type MapAgentProps = {
+  /** Required API endpoint that accepts map-agent requests, e.g. `/api/map-agent`. */
   endpoint: string;
+  /** Provider used by the server route to resolve the backing chat model. */
   provider?: "openai" | "anthropic";
+  /** Optional model override sent to the server route. */
   model?: string;
+  /** Optional provider endpoint override for OpenAI-compatible or Anthropic-compatible gateways. */
   baseUrl?: string;
+  /** Optional auth token forwarded to the server route. Prefer environment variables when possible. */
   token?: string;
-  debug?: boolean;
+  /** Run the initial prompt automatically after the map is ready. */
   autoRun?: boolean;
+  /** Initial prompt used when autoRun is enabled. */
   defaultPrompt?: string;
+  /** Input placeholder text shown in the assistant panel. */
   placeholder?: string;
+  /** Additional CSS classes for the assistant container. */
   className?: string;
+  /** Assistant panel position inside the map container. */
   position?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
 };
 
@@ -900,9 +909,9 @@ function ControlGroup({ children }: { children: React.ReactNode }) {
 function MapAgent({
   endpoint,
   provider = "openai",
-  model = "gpt-4.5-mini",
-  baseUrl = "https://api.openai.com/v1",
-  token = process.env.OPENAI_API_KEY,
+  model,
+  baseUrl,
+  token,
   autoRun = false,
   defaultPrompt = "Fly to New York with a scenic city view",
   placeholder = "Try: Fly to New York with a scenic city view",
@@ -946,7 +955,6 @@ function MapAgent({
           command?: unknown;
           provider?: string;
           model?: string;
-          rawContent?: unknown;
         };
 
         if (!response.ok) {
@@ -2266,4 +2274,4 @@ export {
   MapClusterLayer,
 };
 
-export type { MapRef, MapViewport };
+export type { MapAgentProps, MapRef, MapViewport };
